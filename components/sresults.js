@@ -1,0 +1,57 @@
+import { StatusBar } from 'expo-status-bar';
+import { Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity } from 'react-native';
+import Footer from './footer';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Top from './top';
+
+const { width, height } = Dimensions.get('window');
+
+const Stack = createNativeStackNavigator();
+
+
+export default function Sresults() {
+    return (
+        <SafeAreaView style={styles.container}>
+
+            <StatusBar style="auto" />
+                <SafeAreaView style={styles.safe}>
+                <StatusBar barStyle="dark-content" />
+                  <View style={styles.top}>
+                <Top/>
+                </View>
+                </SafeAreaView>
+            <View style={styles.post}>
+
+            </View>
+            <View style={styles.bottom}>
+                <Footer active="search" />
+            </View>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    post: {
+        paddingLeft: width / 50,
+        paddingRight: width / 50,
+        flexDirection: 'row'
+    },
+    bottom: {
+        position: 'absolute',
+        bottom: 0,
+        padding: height / 50,
+        backgroundColor: 'orange',
+        width: width
+    },
+    input: {
+        borderStyle: 'solid',
+        borderColor: 'black',
+        height: height/20,
+        borderWidth: 1,
+        width: width / 1.2
+    }
+});
