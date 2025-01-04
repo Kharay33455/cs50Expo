@@ -23,7 +23,6 @@ export default function CPosts(props) {
             const result = await response.json();
             setData(result);
             setIsLoading(false);
-            console.log(result)
         } catch (error) {
             console.log(error);
         }
@@ -44,7 +43,6 @@ export default function CPosts(props) {
                 setRequests(result);
                 setIsMod(true);
                 SetDisplay(true);
-                console.log(result);
             }
         } catch (error) {
             console.log(error);

@@ -56,7 +56,6 @@ export default function Profile() {
     }
 
     const get_details = async () => {
-        console.log('Fetching details')
 
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/person?format=json');
@@ -234,7 +233,7 @@ export default function Profile() {
                         </View>
                         <View style={styles.listPad}>
                             <FlatList data={data['post']} renderItem={({ item }) =>
-                                <Post communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={data['pfp']} post={item['post']} display={data['display_name']} op={data['name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
+                                <Post opId = {item['op']} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={item['op_pfp']} post={item['post']} display={item['op_display_name']} op={item['op_user_name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
                             } />
                         </View>
                     </View>

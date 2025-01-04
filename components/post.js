@@ -17,7 +17,6 @@ export default function Post(props) {
     const navigation = useNavigation();
 
 
-
     return (
         <>
             <TouchableOpacity onPress={() => { navigation.navigate('PostE', { id: props.id, comments: props.comments, communityName:props.communityName, communityId : props.communityId, communityIsPrivate : props.communityIsPrivate }) }}>

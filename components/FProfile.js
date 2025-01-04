@@ -29,12 +29,11 @@ export default function FProfile(props) {
 
 
 
-    const get_details = async () => {
-        console.log('Fetching details')
+    const get_details = async (userID) => {
 
         try {
             // Get all details from back end for selected user by their ID.
-            const response = await fetch('http://192.168.0.4:8000/api-person/person?userId='+userId);
+            const response = await fetch('http://192.168.0.4:8000/api-person/person?userId='+userID);
             if (response.status === 301) {
                 navigation.navigate('Login', { err: 'Sign in to continue', from: 'Profile' });
                 return;
@@ -57,8 +56,8 @@ export default function FProfile(props) {
     }
 
     useEffect(() => {
-        get_details();
-    }, [])
+        get_details(userId);
+    }, []);
 
 
 
@@ -73,7 +72,7 @@ export default function FProfile(props) {
                 <>
                     <View style={{ paddingBottom: height / 2 }}>
                         <View style={styles.post}>
-                            <Image source={image !== "" ? { uri: image } : require('../images/placeholder-male.jpg')} style={styles.pfp} />
+                            <Image source={image !== null ? { uri: image } : require('../images/placeholder-male.jpg')} style={styles.pfp} />
                    
                             
                                     <Text style={styles.bio}>
@@ -104,7 +103,7 @@ export default function FProfile(props) {
                         </View>
                         <View style={styles.listPad}>
                             <FlatList data={data['post']} renderItem={({ item }) =>
-                                <Post opId = {null} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={data['pfp']} post={item['post']} display={data['display_name']} op={data['name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
+                                <Post opId = {item['op_user_id']} userId = {data['request_id']} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={item['op_pfp']} post={item['post']} display={item['op_display_name']} op={item['op_user_name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
                             } />
                         </View>
                     </View>
