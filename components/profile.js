@@ -69,6 +69,7 @@ export default function Profile() {
             setBio(data['bio']);
             setDisplayName(data['display_name']);
             data['pfp'] && setImage(data['pfp']);
+
         }
         catch (error) {
             console.error(error)
@@ -139,6 +140,8 @@ export default function Profile() {
     useEffect(() => {
         get_details();
     }, [])
+    console.log(data)
+
 
 
 
@@ -153,7 +156,7 @@ export default function Profile() {
                 <>
                     <View style={{ paddingBottom: height / 2 }}>
                         <View style={styles.post}>
-                            <Image source={image !== "" ? { uri: image } : require('../images/placeholder-male.jpg')} style={processingImage ? [styles.imageBlur, styles.pfp] : styles.pfp} />
+                            <Image source={image !== null ? { uri: image } : require('../images/placeholder-male.jpg')} style={processingImage ? [styles.imageBlur, styles.pfp] : styles.pfp} />
                             <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => { pickNewPfp(); }}>
                                 <Icon name='edit' size={iconSize} color={'orange'} style={{ alignSelf: 'flex-end' }} />
                             </TouchableOpacity>
