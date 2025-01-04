@@ -14,6 +14,8 @@ export default function CPosts(props) {
     const [err, setErr] = useState('');
     const [isMod, setIsMod] = useState(false);
     const [display, SetDisplay] = useState(false);
+    // Set to false so we don't try to access values before requests are made
+    const [loadingRequest, setLoadingRequest] = useState(true);
 
     const iconSize = width / 20;
     const id = props.route.params['id']
@@ -27,11 +29,13 @@ export default function CPosts(props) {
             console.log(error);
         }
     }
+    // itemId is requests to take action on. action can be 1 0r 0.... ie: reject or accept
     const get_requests = async (itemId, action) => {
+
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/community-req?id=' + id+'&itemId='+itemId+'&action=' + action);
             const result = await response.json();
-
+            // user trying to accept or reject request somehow isnt mod
             if (response.status === 403) {
                 setErr("You're not a moderator.");
 
@@ -46,6 +50,10 @@ export default function CPosts(props) {
             }
         } catch (error) {
             console.log(error);
+        }
+        // set false after retrieval
+        finally{
+            setLoadingRequest(false);
         }
     }
 
@@ -74,7 +82,17 @@ export default function CPosts(props) {
 
 
                 <Text style={{ textAlign: 'center', color: "red", fontSize: width / 30, fontWeight: '900' }}>{err}</Text>
+                { 
+                  
+                  loadingRequest? <ActivityIndicator/> :
+                 
+                requests['join_requests'].length===0?
+                    <View>
+                     <Text style={{fontSize:width/10, textAlign:'center'}}>No pending requests</Text>
+                     </View> : 
                 <FlatList data={requests['join_requests']} renderItem={({ item }) =>
+                
+                     
                     <View style={{ flexDirection: "row", justifyContent: 'space-between', padding: width / 20, }}>
                         <View>
                             <Text style={{ fontWeight: '900', fontSize: width / 25 }}>
@@ -101,6 +119,7 @@ export default function CPosts(props) {
                         </View>
                     </View>
                 } />
+            }
             </View>
 
 

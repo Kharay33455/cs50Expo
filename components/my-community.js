@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ActivityIndicator, FlatList, ScrollView } from 'react-native';
 import Footer from './footer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import Top from './top';
 import { useEffect, useState } from 'react';
 import SCommunity from './singleCommunity';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const { width, height } = Dimensions.get('window');
@@ -24,8 +25,8 @@ export default function MyCommunity() {
             const result = await response.json()
             setData(result);
             setIsLoading(false);
-            if (response.status === 301){
-                navigation.navigate('Login', {err:result['err'], from : 'MyCommunity'});
+            if (response.status === 301) {
+                navigation.navigate('Login', { err: result['err'], from: 'MyCommunity' });
             }
 
         }
@@ -70,16 +71,28 @@ export default function MyCommunity() {
                 </TouchableOpacity>
 
             </View>
+            
             <View>
                 {isLoading ? <ActivityIndicator /> :
 
                     <>
                         <FlatList data={data['communities']} renderItem={({ item }) =>
-                            <SCommunity isPrivate = {item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />} />
+                            <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />} style={{height:height/1.5}} />
                     </>
 
                 }
+                {
+                    // Add new community button
+                }
+                <View style={{ flexDirection: 'row-reverse', width: width }}>
+                    <TouchableOpacity style={{ width: width / 4 }} onPress={()=>{
+                        navigation.navigate('New Community');
+                    }}>
+                        <Icon name='plus' size={width / 10} style={{ backgroundColor: "orange", color: 'white', width: width / 8, textAlign: 'center', borderRadius: width / 20, margin: width / 50, padding: width / 100 }} />
+                    </TouchableOpacity>
+                </View>
             </View>
+
             <View style={styles.bottom}>
                 <Footer active="people-group" />
             </View>

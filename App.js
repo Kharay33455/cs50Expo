@@ -17,8 +17,7 @@ import Messages from './components/messages';
 import NewPost from './components/newPost';
 import Register from './components/register';
 import FProfile from './components/FProfile';
-
-const { width, height } = Dimensions.get('window');
+import NewCommunity from './components/newCommunity';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,26 +43,9 @@ export default function App() {
         <Stack.Screen name= 'New Post' component = {NewPost}/>
         <Stack.Screen name='Register' component={Register} options={{headerShown : false}}/>
         <Stack.Screen name='FProfile' component={FProfile} options={{headerShown:false}}/>
+        <Stack.Screen name='New Community' component={NewCommunity}/>
     </Stack.Navigator>
     </NavigationContainer>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  top: {
-    paddingLeft: width / 20,
-    paddingRight: width / 20,
-    paddingTop: width / 100,
-    paddingBottom: width / 100,
-    backgroundColor : 'white',
-    width: width
-  },
-  safe : {
-    backgroundColor:'orange'
-  }
-});

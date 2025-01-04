@@ -109,7 +109,7 @@ export default function Explore() {
 
                             <SCommunity requested = {item['requested']} isPrivate={item['is_private']} isMember={false} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />
 
-                        } />
+                        } style={{height:height/1.5}}/>
                         <TouchableOpacity onPress={() => {
                             setIsLoading(true);
                             getMyCommunities(location.longitude, location.latitude, dist = data['dist']);
