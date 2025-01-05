@@ -73,6 +73,7 @@ export default function Messages(props) {
         }
     }, []);
 
+    // ALways make sure chat scrolls to end after loading
     useEffect(()=>{
         if (flatListRef.current){
             flatListRef.current.scrollToEnd({animated:true});
