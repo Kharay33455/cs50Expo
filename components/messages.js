@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity, Text, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import Footer from './footer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Message from './message';
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
@@ -27,6 +27,10 @@ export default function Messages(props) {
     const [text, setText] = useState('');
     // image if any
     const [image, setImage] = useState('');
+    // ref to target message list
+    const flatListRef = useRef();
+
+    // Image pick
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -55,6 +59,7 @@ export default function Messages(props) {
     // load messages
     useEffect(() => {
         sendId();
+
     }, []);
 
     useEffect(() => {
@@ -67,6 +72,12 @@ export default function Messages(props) {
             keyboardOff.remove();
         }
     }, []);
+
+    useEffect(()=>{
+        if (flatListRef.current){
+            flatListRef.current.scrollToEnd({animated:true});
+        }
+    })
 
 // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
@@ -137,7 +148,7 @@ export default function Messages(props) {
                                 <>
                                     <View style={{ marginBottom: 2 * (height / 20) }}>
 
-                                        <FlatList data={data['messages']} renderItem={({ item }) => <Message message={item} />} />
+                                        <FlatList ref={flatListRef} data={data['messages']} renderItem={({ item }) => <Message message={item} />} />
 
                                     </View>
 
