@@ -15,6 +15,8 @@ export default function Dms() {
     const navigation = useNavigation();
     const [data, setData] = useState(null);
     const [isLoading, setLoading] = useState(true);
+    // store id of read chats
+    const [read, setRead] = useState([]);
 
     const get_chats = async () => {
         try {
@@ -22,17 +24,22 @@ export default function Dms() {
             const result = await response.json()
             setData(result);
             setLoading(false);
+            // Keep list of ids of all read chats
+            const readChats = result['chats'].map(item =>
+                item['chat']['is_read'] ? item['chat']['id']: null
+            );
+            setRead(readChats);
+            // redirect not authenticated users
             if (response.status === 301){
                 navigation.navigate("Login", {err:result['err'], from : 'Dms'})
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
     useEffect(() => {
         get_chats();
-        console.log(data);
 
     }, [])
 
@@ -66,9 +73,10 @@ export default function Dms() {
                 {isLoading ? <ActivityIndicator /> : 
                 <FlatList data={data['chats']} renderItem={({ item }) => 
                     <TouchableOpacity onPress={()=>{
+                        setRead(read => [...read, item['chat']['id']])
                         navigation.navigate('Messages', {id : item['chat']['id'] , displayName: item['other_user']['display_name'], oppfp:item['other_user']['pfp']})
                     }}>
-                <Chat displayName={item['other_user']['display_name']} pfp = {item['other_user']['pfp']} time = {item['chat']['time']} lastText = {item['chat']['last_text']}/>
+                <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp = {item['other_user']['pfp']} time = {item['chat']['time']} lastText = {item['chat']['last_text']}/>
                 </TouchableOpacity>
                 } 
                 />

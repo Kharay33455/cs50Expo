@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity, Text, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import Footer from './footer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Top from './top';
 import { useEffect, useState } from 'react';
 import Message from './message';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -16,13 +15,17 @@ const Stack = createNativeStackNavigator();
 
 
 export default function Messages(props) {
+    // props passed in dictionary during navigation
     const mProps = props.route.params || {};
+    // store return from server
     const [data, setData] = useState({});
+    // true is data is not yet delivered by server, set to false when delivered
     const [loading, setLoading] = useState(true);
+    // keep track of weather or not user hs started typing
     const [isTyping, setIsTyping] = useState(false);
+    // text to send back as new message
     const [text, setText] = useState('');
-    console.log(mProps['oppfp']);
-
+    // image if any
     const [image, setImage] = useState('');
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
@@ -32,16 +35,13 @@ export default function Messages(props) {
             aspect: [4, 3],
             quality: 1,
         });
-
-
-
-
+        // check if user canceled
         if (!result.canceled) {
             setImage(result.assets[0].uri);
         }
     };
 
-// function to load all messages from chat id
+    // function to load all messages from chat id
     const sendId = async () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/show?id=' + mProps['id']);
@@ -49,36 +49,31 @@ export default function Messages(props) {
             setData(result);
             setLoading(false);
         } catch (error) {
-            console.log('error')
+            console.log(error);
         }
     }
     // load messages
     useEffect(() => {
         sendId();
-
     }, []);
 
     useEffect(() => {
-
+        // hide or show keyboard when user wants to start typing
         const keyboardOn = Keyboard.addListener('keyboardWillShow', () => { setIsTyping(true) });
         const keyboardOff = Keyboard.addListener('keyboardWillHide', () => { setIsTyping(false) });
-
+        // remove hoot after component is closed
         return () => {
             keyboardOn.remove();
             keyboardOff.remove();
         }
-
     }, []);
 
-
-
-
-
+// send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
         const token = data['csrf']
 
         const form = new FormData();
-
+// image if aailable
         if (image) {
             form.append('image', {
                 uri: uri,
@@ -86,11 +81,14 @@ export default function Messages(props) {
                 name: 'image.jpg',
             });
         }
+        // append text and id of chat to send message to
         form.append('caption', text);
         form.append('id', mProps['id'])
         try {
 
+            // get response from server
             const response = await fetch('http://192.168.0.4:8000/chat/send-message',
+                
                 {
                     method: 'POST',
                     headers: {
@@ -128,7 +126,7 @@ export default function Messages(props) {
                         <SafeAreaView style={styles.safe}>
                             <StatusBar barStyle="dark-content" />
                             <View style={styles.top}>
-                                <Image source={ mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
+                                <Image source={mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
                             </View>
                             <Text style={{ fontSize: width / 15, textAlign: 'center' }}>{mProps['displayName']}</Text>
 
@@ -140,9 +138,9 @@ export default function Messages(props) {
                                     <View style={{ marginBottom: 2 * (height / 20) }}>
 
                                         <FlatList data={data['messages']} renderItem={({ item }) => <Message message={item} />} />
-                                    
+
                                     </View>
-                                    
+
                                 </>
 
                             }

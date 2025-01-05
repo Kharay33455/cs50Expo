@@ -1,0 +1,6 @@
+. Make all models readable where possible for now (done)
+. Communities (done)
+. Dms (done)
+. Messaging from profile (done)
+. Track unread messages and highlight(done)
+. Auto update isRead variable from front end(done)
