@@ -23,8 +23,7 @@ export default function Fpfp(props) {
             {
                 // Check if requesting user is signed in user. If they are, show them their profile as editable]
             }
-            console.log(id)
-            console.log(userId)
+    
             {
                 id === userId ?
                 navigation.navigate('Profile')

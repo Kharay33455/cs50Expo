@@ -51,10 +51,9 @@ export default function Messages(props) {
             const result = await response.json();
             setData(result);
             setLoading(false);
-            console.log(result)
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
     // load messages
@@ -121,7 +120,7 @@ export default function Messages(props) {
 
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

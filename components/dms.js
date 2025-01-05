@@ -35,7 +35,7 @@ export default function Dms() {
                 navigation.navigate("Login", {err:result['err'], from : 'Dms'})
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 

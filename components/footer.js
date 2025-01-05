@@ -16,7 +16,6 @@ export default function Footer(props){
         try{
             const response = await fetch('http://192.168.0.4:8000/api-person/footer-details');
             const result = await response.json();
-            console.log(result);
             setFooterData(result);
 
         }catch(error){
