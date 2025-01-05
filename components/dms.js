@@ -23,12 +23,13 @@ export default function Dms() {
             const response = await fetch('http://192.168.0.4:8000/chat/')
             const result = await response.json()
             setData(result);
-            setLoading(false);
             // Keep list of ids of all read chats
             const readChats = result['chats'].map(item =>
                 item['chat']['is_read'] ? item['chat']['id']: null
             );
             setRead(readChats);
+            setLoading(false);
+
             // redirect not authenticated users
             if (response.status === 301){
                 navigation.navigate("Login", {err:result['err'], from : 'Dms'})
@@ -87,7 +88,8 @@ export default function Dms() {
             
 
             <View style={styles.bottom}>
-                <Footer active="message" />
+                {isLoading? <ActivityIndicator/> :  <Footer active="message" /> }
+               
             </View>
         </SafeAreaView>
     );

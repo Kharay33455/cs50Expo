@@ -1,18 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity, Text, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import Footer from './footer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
 import Message from './message';
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
 
 
 const { width, height } = Dimensions.get('window');
-
-const Stack = createNativeStackNavigator();
-
 
 export default function Messages(props) {
     // props passed in dictionary during navigation
@@ -29,6 +26,8 @@ export default function Messages(props) {
     const [image, setImage] = useState('');
     // ref to target message list
     const flatListRef = useRef();
+    
+    const navigation = useNavigation();
 
     // Image pick
     const pickImage = async () => {
@@ -52,6 +51,8 @@ export default function Messages(props) {
             const result = await response.json();
             setData(result);
             setLoading(false);
+            console.log(result)
+
         } catch (error) {
             console.log(error);
         }
@@ -138,7 +139,11 @@ export default function Messages(props) {
                         <SafeAreaView style={styles.safe}>
                             <StatusBar barStyle="dark-content" />
                             <View style={styles.top}>
+                                <TouchableOpacity onPress={()=>{
+                                    navigation.navigate('FProfile', {id : data['other_user_id']})
+                                }}>
                                 <Image source={mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
+                                </TouchableOpacity>
                             </View>
                             <Text style={{ fontSize: width / 15, textAlign: 'center' }}>{mProps['displayName']}</Text>
 
