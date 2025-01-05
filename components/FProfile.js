@@ -6,8 +6,7 @@ import Top from './top';
 import { use, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Post from './post';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import * as ImagePicker from 'expo-image-picker';
+import Icon from 'react-native-vector-icons/Foundation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,7 +22,7 @@ export default function FProfile(props) {
     const [bio, setBio] = useState('');
     const [image, setImage] = useState(null);
     const parameters = props.route.params || {};
-    const userId =  parameters['id'];
+    const userId = parameters['id'];
 
     const [displayName, setDisplayName] = useState('');
 
@@ -33,12 +32,12 @@ export default function FProfile(props) {
 
         try {
             // Get all details from back end for selected user by their ID.
-            const response = await fetch('http://192.168.0.4:8000/api-person/person?userId='+userID);
+            const response = await fetch('http://192.168.0.4:8000/api-person/person?userId=' + userID);
             if (response.status === 301) {
                 navigation.navigate('Login', { err: 'Sign in to continue', from: 'Profile' });
                 return;
             }
-            if (response.status === 302){
+            if (response.status === 302) {
                 navigation.navigate('Profile');
                 return;
             };
@@ -59,6 +58,21 @@ export default function FProfile(props) {
         get_details(userId);
     }, []);
 
+    const chat = async()=>{
+        try{
+            const response = await fetch('http://192.168.0.4:8000/chat/new-message?user1='+userId);
+            const result = await response.json();
+            if (response.status === 301){
+                navigation.navigate("Login", {err: result['err']});
+            };
+            if (response.status === 200){
+                navigation.navigate('Messages', {id : result['id'] , displayName: result['other_display_name'], oppfp:result['other_pfp']})
+            }
+        }catch(error){
+            console.log(error);
+        }
+    };
+
 
 
     return (
@@ -73,26 +87,37 @@ export default function FProfile(props) {
                     <View style={{ paddingBottom: height / 2 }}>
                         <View style={styles.post}>
                             <Image source={image !== null ? { uri: image } : require('../images/placeholder-male.jpg')} style={styles.pfp} />
-                   
-                            
-                                    <Text style={styles.bio}>
-                                        {bio}  
-                                    </Text>
 
-                        </View>
-                        <View style={{ marginLeft: width / 20 }}>
-                            
-                                
-                                <Text style={{ fontWeight: 900, fontSize: width / 20 }}>
-                                    {displayName}
-                                </Text>
-                            
-                            <Text style={{ fontWeight: 500, fontSize: width / 25 }}>
-                                @{data['name']}
+
+                            <Text style={styles.bio}>
+                                {bio}
                             </Text>
 
                         </View>
-                 
+                        <View style={{ marginLeft: width / 20 }}>
+
+
+                            <Text style={{ fontWeight: 900, fontSize: width / 20 }}>
+                                {displayName}
+                            </Text>
+                            <View style={{flexDirection:'row', justifyContent:"flex-start", width:width}}>
+                                <View>
+                                    <Text style={{ fontWeight: 500, fontSize: width / 25 }}>
+                                        @{data['name']}
+                                    </Text>
+                                </View>
+
+                                <View style={{marginLeft:width/20}}>
+                                <TouchableOpacity onPress={()=>{
+                                    chat();
+                                }}>
+                                    <Icon name="mail" size={iconSize} style={{color:'orange'}}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                        </View>
+
                         <View style={[styles.post, { justifyContent: 'space-around', paddingTop: width / 20 }]}>
                             <Text style={styles.fontSizing}>23 Fans</Text>
                             <Text style={styles.fontSizing}>9 Obsessions</Text>
@@ -103,7 +128,7 @@ export default function FProfile(props) {
                         </View>
                         <View style={styles.listPad}>
                             <FlatList data={data['post']} renderItem={({ item }) =>
-                                <Post opId = {item['op_user_id']} userId = {data['request_id']} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={item['op_pfp']} post={item['post']} display={item['op_display_name']} op={item['op_user_name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
+                                <Post opId={item['op_user_id']} userId={data['request_id']} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={item['op_pfp']} post={item['post']} display={item['op_display_name']} op={item['op_user_name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
                             } />
                         </View>
                     </View>

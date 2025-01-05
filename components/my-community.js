@@ -88,7 +88,7 @@ export default function MyCommunity() {
                     <TouchableOpacity style={{ width: width / 4 }} onPress={()=>{
                         navigation.navigate('New Community');
                     }}>
-                        <Icon name='plus' size={width / 10} style={{ backgroundColor: "orange", color: 'white', width: width / 8, textAlign: 'center', borderRadius: width / 20, margin: width / 50, padding: width / 100 }} />
+                        <Icon name='plus' size={width / 10} style={styles.plusIcon} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -120,5 +120,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: height / 200,
         borderBottomColor: 'orange'
     },
+    plusIcon :
+    {
+        backgroundColor: "orange", color: 'white', width: width / 8, textAlign: 'center', borderRadius: width / 20, margin: width / 50, padding: width / 100
+    }
 
 });

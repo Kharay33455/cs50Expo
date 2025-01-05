@@ -10,10 +10,10 @@ export default function Chat(props) {
                 <Fpfp uri = {props.pfp}/>
                 </View>
                 <View style={styles.content}>
-                    <Text style={styles.displayName}>
+                    <Text style={[styles.displayName]}>
                         {props.displayName}
                     </Text>
-                    <Text style={styles.lastText}>
+                    <Text style={[styles.lastText]}>
                         {props.lastText}
                     </Text>
                 </View>

@@ -21,6 +21,7 @@ export default function Messages(props) {
     const [loading, setLoading] = useState(true);
     const [isTyping, setIsTyping] = useState(false);
     const [text, setText] = useState('');
+    console.log(mProps['oppfp']);
 
     const [image, setImage] = useState('');
     const pickImage = async () => {
@@ -40,7 +41,7 @@ export default function Messages(props) {
         }
     };
 
-
+// function to load all messages from chat id
     const sendId = async () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/show?id=' + mProps['id']);
@@ -51,8 +52,8 @@ export default function Messages(props) {
             console.log('error')
         }
     }
-
-    useState(() => {
+    // load messages
+    useEffect(() => {
         sendId();
 
     }, []);
@@ -127,7 +128,7 @@ export default function Messages(props) {
                         <SafeAreaView style={styles.safe}>
                             <StatusBar barStyle="dark-content" />
                             <View style={styles.top}>
-                                <Image source={{ uri: mProps['oppfp'] }} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
+                                <Image source={ mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
                             </View>
                             <Text style={{ fontSize: width / 15, textAlign: 'center' }}>{mProps['displayName']}</Text>
 
@@ -139,7 +140,9 @@ export default function Messages(props) {
                                     <View style={{ marginBottom: 2 * (height / 20) }}>
 
                                         <FlatList data={data['messages']} renderItem={({ item }) => <Message message={item} />} />
+                                    
                                     </View>
+                                    
                                 </>
 
                             }

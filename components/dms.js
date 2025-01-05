@@ -7,8 +7,8 @@ import { useEffect, useState } from 'react';
 import Chat from './chat';
 
 
+// Get dimensions for user phone screen
 const { width, height } = Dimensions.get('window');
-
 
 
 export default function Dms() {
@@ -75,6 +75,8 @@ export default function Dms() {
                 }
 
             </View>
+
+            
 
             <View style={styles.bottom}>
                 <Footer active="message" />

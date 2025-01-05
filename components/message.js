@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, Dimensions, FlatList, Image } from "react-native"
+import { Text, StyleSheet, View, Dimensions, Image } from "react-native"
 
 const { width, height } = Dimensions.get('screen');
 
