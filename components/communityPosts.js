@@ -4,6 +4,8 @@ import Post from "./post";
 import Footer from "./footer";
 import Top from "./top";
 import Icon from "react-native-vector-icons/Entypo";
+import IIcons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get('screen');
 
@@ -16,6 +18,10 @@ export default function CPosts(props) {
     const [display, SetDisplay] = useState(false);
     // Set to false so we don't try to access values before requests are made
     const [loadingRequest, setLoadingRequest] = useState(true);
+    // to manage edit box visibility
+    const [showExitBox, SetShowExitBox] = useState(false);
+
+    const navigation = useNavigation();
 
     const iconSize = width / 20;
     const id = props.route.params['id']
@@ -33,6 +39,23 @@ export default function CPosts(props) {
             console.log(error);
         }
     }
+
+
+
+    /// Exit community function 
+    const exitCommunity = async (communityId) => {
+        try {
+            const response = await fetch('http://192.168.0.4:8000/api-person/exit-community?communityId='+communityId);
+            if (response.status === 200) {
+                navigation.navigate('MyCommunity');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+
+
     // itemId is requests to take action on. action can be 1 0r 0.... ie: reject or accept
     const get_requests = async (itemId, action) => {
 
@@ -189,6 +212,48 @@ export default function CPosts(props) {
             <View style={styles.bottom}>
                 <Footer active="people-group" />
             </View>
+
+{ !isLoading &&  !data['notMember'] &&
+    <>
+            <TouchableOpacity style={{ position: 'absolute', bottom: height / 5, width: width / 6, right: 0 }}
+                onPress={() => {
+                    SetShowExitBox(true);
+                }}
+            >
+                <Text>
+                    <IIcons name="exit" size={iconSize * 2} style={{ color: 'orange' }} />
+                </Text>
+            </TouchableOpacity>
+
+            <View style={showExitBox ? styles.exitBox : [styles.exitBox, { display: 'none' }]}>
+                <View style={{ width: width / 1.5, backgroundColor: 'orange', padding: width / 20, borderRadius: width / 20 }}>
+                    <Text style={{ color: 'white', fontSize: width / 25, fontWeight: '900' }}>
+                        You're about to exit "{!isLoading && data['community_details']['community_name']}"", are you sure you want to proceed with this action?
+                    </Text>
+                    <Text style={{color: 'blue', fontSize: width / 35, fontWeight: '900'}}>
+                        If this community is private, an moderator would have to approve your request to rejoin.
+                    </Text>
+                    <View style={{ flexDirection: 'row', width: width / 3, justifyContent: 'space-evenly', alignSelf: 'center' }}>
+                        <TouchableOpacity onPress={() => {
+                            exitCommunity(data['post_list'][0]['community']);
+                        }}>
+                            <Text style={[{ backgroundColor: 'red' }, styles.button]}>
+                                Exit
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            SetShowExitBox(false);
+                        }}>
+                            <Text style={[{ backgroundColor: 'blue' }, styles.button]}>
+                                Back
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+            </>
+            }
         </>
     )
 }
@@ -212,5 +277,12 @@ const styles = StyleSheet.create({
     iconImage:
     {
         padding: width / 100
+    },
+    button: {
+        color: 'white', padding: width / 100, borderRadius: width / 50, fontSize: height / 50, marginTop: height / 50
+    },
+    exitBox:
+    {
+        position: 'absolute', width: width, height: height, alignContent: 'center', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.5)'
     }
 })
