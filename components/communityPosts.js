@@ -23,8 +23,12 @@ export default function CPosts(props) {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/get-community-posts?id=' + id);
             const result = await response.json();
-            setData(result);
-            setIsLoading(false);
+            if (response.status === 200) {
+                setData(result);
+                setIsLoading(false);
+                console.log(result);
+            }
+
         } catch (error) {
             console.log(error);
         }
@@ -33,7 +37,7 @@ export default function CPosts(props) {
     const get_requests = async (itemId, action) => {
 
         try {
-            const response = await fetch('http://192.168.0.4:8000/api-person/community-req?id=' + id+'&itemId='+itemId+'&action=' + action);
+            const response = await fetch('http://192.168.0.4:8000/api-person/community-req?id=' + id + '&itemId=' + itemId + '&action=' + action);
             const result = await response.json();
             // user trying to accept or reject request somehow isnt mod
             if (response.status === 403) {
@@ -48,11 +52,12 @@ export default function CPosts(props) {
                 setIsMod(true);
                 SetDisplay(true);
             }
+
         } catch (error) {
             console.log(error);
         }
         // set false after retrieval
-        finally{
+        finally {
             setLoadingRequest(false);
         }
     }
@@ -82,44 +87,44 @@ export default function CPosts(props) {
 
 
                 <Text style={{ textAlign: 'center', color: "red", fontSize: width / 30, fontWeight: '900' }}>{err}</Text>
-                { 
-                  
-                  loadingRequest? <ActivityIndicator/> :
-                 
-                requests['join_requests'].length===0?
-                    <View>
-                     <Text style={{fontSize:width/10, textAlign:'center'}}>No pending requests</Text>
-                     </View> : 
-                <FlatList data={requests['join_requests']} renderItem={({ item }) =>
-                
-                     
-                    <View style={{ flexDirection: "row", justifyContent: 'space-between', padding: width / 20, }}>
-                        <View>
-                            <Text style={{ fontWeight: '900', fontSize: width / 25 }}>
-                                {item['username']}
-                            </Text>
-                        </View>
+                {
 
-                        <View style={{ flexDirection: 'row', width: width / 6, justifyContent: 'space-between' }}>
-                            <TouchableOpacity onPress={()=>{
-                                get_requests(item['id'], 0);
-                            }}>
-                                <Text style={[styles.iconImage, { backgroundColor: 'green' }]}>
-                                    <Icon name="add-user" size={iconSize} color={'white'} />
-                                </Text>
-                            </TouchableOpacity>
+                    loadingRequest ? <ActivityIndicator /> :
 
-                            <TouchableOpacity onPress={()=>{
-                                get_requests(item['id'] , 1);
-                            }}>
-                                <Text style={[styles.iconImage, { backgroundColor: 'red' }]}>
-                                    <Icon name="remove-user" size={iconSize} color={'white'} />
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                } />
-            }
+                        requests['join_requests'].length === 0 ?
+                            <View>
+                                <Text style={{ fontSize: width / 10, textAlign: 'center' }}>No pending requests</Text>
+                            </View> :
+                            <FlatList data={requests['join_requests']} renderItem={({ item }) =>
+
+
+                                <View style={{ flexDirection: "row", justifyContent: 'space-between', padding: width / 20, }}>
+                                    <View>
+                                        <Text style={{ fontWeight: '900', fontSize: width / 25 }}>
+                                            {item['username']}
+                                        </Text>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'row', width: width / 6, justifyContent: 'space-between' }}>
+                                        <TouchableOpacity onPress={() => {
+                                            get_requests(item['id'], 0);
+                                        }}>
+                                            <Text style={[styles.iconImage, { backgroundColor: 'green' }]}>
+                                                <Icon name="add-user" size={iconSize} color={'white'} />
+                                            </Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => {
+                                            get_requests(item['id'], 1);
+                                        }}>
+                                            <Text style={[styles.iconImage, { backgroundColor: 'red' }]}>
+                                                <Icon name="remove-user" size={iconSize} color={'white'} />
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            } />
+                }
             </View>
 
 
@@ -134,6 +139,7 @@ export default function CPosts(props) {
                                 <StatusBar barStyle="dark-content" />
                                 <View style={styles.top}>
                                     <Top uri={data['user_pfp']} />
+
                                 </View>
                             </SafeAreaView>
                             <View style={styles.head}>
@@ -158,11 +164,25 @@ export default function CPosts(props) {
                                 </TouchableOpacity>
                             }
 
+                            {data['community_details']['community_description'] &&
+                                <Text style={{ padding: iconSize }}>
+                                    {data['community_details']['community_description']}
+                                </Text>
+                            }
 
+                            {
+                                data['notMember'] && <Text style={{ fontWeight: '900', padding: iconSize / 2 }}>You are not a member of this community so you can only see posts available to the public.</Text>
+                            }
                             {data['length'] === 0 ? <Text style={{ fontWeight: '900', textAlign: 'center', fontSize: width / 20 }}>NO POSTS YET</Text> :
-                                <FlatList data={data['post_list']} renderItem={({ item }) =>
-                                    <Post userId = {data['user_id']} opId = {item['op_id']} communityIsPrivate={data['community_details']['community_is_private']} communityName={data['community_details']['community_name']} communityId={id} isShared={item['is_shared']} id={item['id']} oppfp={item['oppfp']} post={item['post']} display={item['display']} op={item['op']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} comments={item['comments']} shares={item['shares']} allege={item['allege']} />
-                                } />}
+
+                                <>
+
+                                    <FlatList data={data['post_list']} renderItem={({ item }) =>
+                                        <Post userId={data['user_id']} opId={item['op_id']} communityIsPrivate={data['community_details']['community_is_private']} communityName={data['community_details']['community_name']} communityId={id} isShared={item['is_shared']} id={item['id']} oppfp={item['oppfp']} post={item['post']} display={item['display']} op={item['op']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} comments={item['comments']} shares={item['shares']} allege={item['allege']} />
+                                    } />
+                                </>
+
+                            }
                         </View>
                     </>
             }

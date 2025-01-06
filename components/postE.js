@@ -40,6 +40,7 @@ export default function PostE(props) {
             const result = await response.json();
             setIsLoading(false)
             setData(result)
+            console.log(result)
         }
         catch (error) {
             console.log(error)
@@ -72,8 +73,8 @@ export default function PostE(props) {
                             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                                 <ScrollView>
 
-
-                                    <Post opId = {data['post']['op']} userId= {data['user_id']} interact = {true} communityIsPrivate = {props.route.params['communityIsPrivate']} communityName = { data['community_name'] ? data['community_name'] :  props.route.params['communityName']} communityId = {props.route.params['communityId']} isShared={data['post']['is_shared']} id={id} oppfp={data['post']['op_pfp']} post={data['post']['post']} display={data['post']['op_display_name']} op={data['post']['op_username']} media1={data['post']['media1']} likes={data['post']['likes']} frowns={data['post']['frowns']} ghost_likes={data['post']['ghost_likes']} comments={loadedComments ? commentCount : 0} shares={data['post']['shares']} allege={data['post']['allege']} />
+                                    {data['post']['isPrivate'] && <Text style={{textAlign:'center'}}>Post is private</Text>}
+                                    <Post opId={data['post']['op']} userId={data['user_id']} interact={true} communityIsPrivate={props.route.params['communityIsPrivate']} communityName={data['community_name'] ? data['community_name'] : props.route.params['communityName']} communityId={props.route.params['communityId']} isShared={data['post']['is_shared']} id={id} oppfp={data['post']['op_pfp']} post={data['post']['post']} display={data['post']['op_display_name']} op={data['post']['op_username']} media1={data['post']['media1']} likes={data['post']['likes']} frowns={data['post']['frowns']} ghost_likes={data['post']['ghost_likes']} comments={loadedComments ? commentCount : 0} shares={data['post']['shares']} allege={data['post']['allege']} />
                                     {data['post']['media2'] && <Image source={{ uri: data['post']['media2'] }} style={styles.image} />}
                                     {data['post']['media3'] && <Image source={{ uri: data['post']['media3'] }} style={styles.image} />}
                                     {data['post']['media4'] && <Image source={{ uri: data['post']['media4'] }} style={styles.image} />}
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
         paddingLeft: width / 50,
         paddingRight: width / 50,
         flexDirection: 'row',
-        paddingBottom:height/5
+        paddingBottom: height / 5
     },
     bottom: {
         position: 'absolute',

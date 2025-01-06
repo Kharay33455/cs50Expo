@@ -2,11 +2,11 @@ import { StatusBar } from 'expo-status-bar';
 import { Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity, Text, Image, ScrollView, FlatList, Keyboard } from 'react-native';
 import Footer from './footer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Top from './top';
 import { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
+
 
 
 const { width, height } = Dimensions.get('window');
@@ -28,6 +28,7 @@ export default function NewPost() {
     const navigation = useNavigation();
     const [err, setErr] = useState('');
     const [msgColor, setMsgColor] = useState('red');
+    const [isPrivate, setIsPrivate] = useState(true);
 
 
     const get_communities = async () => {
@@ -36,8 +37,8 @@ export default function NewPost() {
             const result = await response.json();
             setIsLoading(false);
             setData(result);
-            if (response.status===301){
-                navigation.navigate('Login', {err:result['err'], from :'New Post'})
+            if (response.status === 301) {
+                navigation.navigate('Login', { err: result['err'], from: 'New Post' })
             }
         } catch (error) {
             console.log(error);
@@ -90,7 +91,8 @@ export default function NewPost() {
         // get csrf token
         const csrf = data['csrf'];
 
-        if(!community){
+
+        if (!community) {
             setErr('No community selected');
             setMsgColor('red');
             return;
@@ -101,7 +103,7 @@ export default function NewPost() {
         // check for images and append to form if available
         function append_images(image_uri, num) {
             if (image_uri) {
-                form.append('image'+num, {
+                form.append('image' + num, {
                     uri: image_uri,
                     type: 'image/jpg',
                     name: image_uri
@@ -116,57 +118,58 @@ export default function NewPost() {
         form.append('post', text.split(0, 500));
         // append community
         form.append('commId', community);
+        form.append('isPrivate', isPrivate);
         // try to send post to server with post method
         try {
 
             // create and send post
-            const response = await fetch('http:192.168.0.4:8000/chat/new-post', 
+            const response = await fetch('http:192.168.0.4:8000/chat/new-post',
                 {
-                    method:'POST',
-                    headers : {
-                        'Content-Type' : 'multipart/form-data',
-                        'X-CSRFToken' : csrf
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-CSRFToken': csrf
                     },
-                    body : form
+                    body: form
                 }
             );
             // process response
             const result = await response.json();
             //if error
-            if (response.status == 201){
+            if (response.status == 201) {
                 // process error
                 setErr(result['err']);
                 setMsgColor('red');
-            // if success
+                // if success
             }
-            if(response.status == 200){
+            if (response.status == 200) {
                 // redirect to post
                 console.log(result['post_id'])
-                navigation.navigate('PostE', {id : result['post_id'], communityName : commName});
+                navigation.navigate('PostE', { id: result['post_id'], communityName: commName });
             }
 
         }
         // catch unplanned errors
-        catch(error){
+        catch (error) {
             console.log(error)
         };
-};
+    };
     return (
 
         <SafeAreaView style={styles.container} >
 
             <StatusBar style="auto" />
-            <Text style={{textAlign:'center', color:msgColor, fontSize:width/20 }}>{err}</Text>
+            <Text style={{ textAlign: 'center', color: msgColor, fontSize: width / 20 }}>{err}</Text>
             <View style={styles.post}>
 
                 <View style={{ padding: width / 50, backgroundColor: 'orange', alignSelf: 'flex-end', borderRadius: width / 70 }}>
-                  <TouchableOpacity onPress={()=>{
-                    sendPost();
-                  }}>
-                    <Text style={{ alignSelf: "flex-end", textAlign: 'right', color: 'white', fontWeight: '900' }}>
+                    <TouchableOpacity onPress={() => {
+                        sendPost();
+                    }}>
+                        <Text style={{ alignSelf: "flex-end", textAlign: 'right', color: 'white', fontWeight: '900' }}>
 
-                        Post
-                    </Text>
+                            Post
+                        </Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: "space-evenly" }}>
@@ -247,6 +250,23 @@ export default function NewPost() {
                 </View>
 
                 <View>
+                    <Text style={styles.title}>
+                        Privacy:
+
+                    </Text>
+
+                    <TouchableOpacity onPress={() => {
+                        isPrivate ? setIsPrivate(false) : setIsPrivate(true);
+                    }}>
+
+                        <Icon name={isPrivate ? 'toggle-on' : 'toggle-off'} size={width / 10} style={{ color: isPrivate ? 'orange' : 'gray' }} />
+                    </TouchableOpacity>
+                    <Text style={{ color: 'blue' }}>
+                        {isPrivate ? 'Only members of your community can view this post' : 'Anyone can view this post.'}
+                    </Text>
+                </View>
+
+                <View>
                     {!isLoading &&
                         <FlatList data={data['comm_info']} renderItem={({ item }) =>
                             <>
@@ -274,7 +294,7 @@ export default function NewPost() {
             </View>
 
             <View style={styles.bottom}>
-                <Footer active="people-group"/>
+                <Footer active="people-group" />
             </View>
         </SafeAreaView>
     );
@@ -306,7 +326,9 @@ const styles = StyleSheet.create({
     {
         width: width / 10,
         height: width / 10
+    },
+    title:
+    {
+        fontWeight: '900', fontSize: height / 50, marginTop: height / 50
     }
-
-
 });
