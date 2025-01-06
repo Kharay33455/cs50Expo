@@ -14,10 +14,13 @@ export default function Posts() {
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
 
+    const controller = new AbortController();
+    const { signal } = controller
+
 
     const getPosts = async () => {
         try {
-            const response = await fetch('http://192.168.0.4:8000/api-person/?format=json')
+            const response = await fetch('http://192.168.0.4:8000/api-person/?format=json', { signal })
             const result = await response.json()
             setData(result);
         }
@@ -31,6 +34,10 @@ export default function Posts() {
 
     useEffect(() => {
         getPosts();
+
+        return ()=>{
+            controller.abort();
+        }
     }, []);
     return (
         <SafeAreaView style={styles.container}>
