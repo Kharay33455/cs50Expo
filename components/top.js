@@ -19,7 +19,7 @@ export default function Top(props) {
     const uri = props.uri || 'None';
     return (
 
-        <View style={{alignSelf:'center'}}>
+        <View style={{alignSelf:'center', height: height/15}}>
         <View style={Platform.OS == 'android' ? [styles.container, {paddingTop: height/40}] : styles.container} >
             <TouchableOpacity>
             <Pfp uri = {uri}/>

@@ -18,6 +18,8 @@ import NewPost from './components/newPost';
 import Register from './components/register';
 import FProfile from './components/FProfile';
 import NewCommunity from './components/newCommunity';
+import CMessages from './components/communityMessages';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +46,7 @@ export default function App() {
         <Stack.Screen name='Register' component={Register} options={{headerShown : false}}/>
         <Stack.Screen name='FProfile' component={FProfile} options={{headerShown:false}}/>
         <Stack.Screen name='New Community' component={NewCommunity}/>
+        <Stack.Screen name='CMessages' component={CMessages} options={{headerShown : false}} />
     </Stack.Navigator>
     </NavigationContainer>
     </>

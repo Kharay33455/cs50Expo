@@ -48,7 +48,7 @@ export default function Footer(props){
 
                 <TouchableOpacity onPress={()=>{navigation.navigate('Alert')}} style={{position:'relative'}}>
                     <View style={{position:'absolute', right:0}}>
-                        <Text style={{color:'white', textAlign:'right'}}>
+                        <Text style={{color:'white', textAlign:'right', fontWeight:'900'}}>
                             {footerData['notification_count'] !== 0 && footerData['notification_count'] }
                         </Text>
                     </View>
@@ -69,9 +69,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignContent: 'stretch',
         width: width - (width/10),
+        height : height/20
     },
     icons :{
-        padding:width/100
+        padding:height/100
     },
     active : {
         color:'green'
