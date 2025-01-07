@@ -8,12 +8,14 @@ import { useNavigation } from "@react-navigation/native";
 const { width, height } = Dimensions.get('screen');
 export default function Notification(props) {
     const navigation = useNavigation();
-    console.log(props.type);
+    console.log(props.isSeen);
     return (
         <TouchableOpacity onPress={() => {
             navigation.navigate("PostE", { id: props.postId })
-        }}>
-            <View style={styles.notif}>
+            }}
+            style={{ margin:height/200}}
+            >
+            <View style={[styles.notif, {backgroundColor: props.isSeen ? "white" : "rgba(225,165,0,0.1)"}]}>
                 <View style={styles.notifContainer}>
                 {props.type === "rejected-join" &&
                         <Icon name="handshake-slash" color='grey' size={height / 50} style={{ textAlign: 'center' }} />

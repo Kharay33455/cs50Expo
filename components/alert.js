@@ -25,7 +25,7 @@ export default function Alert() {
                 navigation.navigate('Login', {err:result['err'], from : 'Alert'})
             }
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     };
 
@@ -47,11 +47,14 @@ export default function Alert() {
                     </Text>
                 </TouchableOpacity>
             </View>
+            {
+                // Display alerts in list
+            }
                 {
                     isLoading ?
                     <ActivityIndicator/>:
                     <View style={{paddingBottom: height/8, paddingTop:height/50}}>
-                    <FlatList data={data['notif']} renderItem={({item})=> <Notification postId = {item['post_id']} post = {item['post']} userId = {item['user_id']} message={item['message']} pfp = {item['oppfp']} type={item['type']} displayName = {item['user']}/>} />
+                    <FlatList data={data['notif']} renderItem={({item})=> <Notification isSeen = {item['is_seen']} postId = {item['post_id']} post = {item['post']} userId = {item['user_id']} message={item['message']} pfp = {item['oppfp']} type={item['type']} displayName = {item['user']}/>} />
                     </View>
                     
                 }

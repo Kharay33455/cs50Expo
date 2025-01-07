@@ -4,3 +4,5 @@
 . Messaging from profile (done)
 . Track unread messages and highlight(done)
 . Auto update isRead variable from front end(done)
+. Allow users safely exit communities(done)
+. Notify users of unseen notications(done)

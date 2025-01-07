@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, View, TouchableOpacity } from "react-native";
+import { Dimensions, StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon6 from 'react-native-vector-icons/FontAwesome6';
 import MIcon from 'react-native-vector-icons/MaterialIcons';
@@ -17,14 +17,17 @@ export default function Footer(props){
             const response = await fetch('http://192.168.0.4:8000/api-person/footer-details');
             const result = await response.json();
             setFooterData(result);
+            console.log(result);
 
         }catch(error){
             console.error(error);
         }
     };
 
-    useEffect(()=>{
-        getFooterDets();
+
+    
+    useEffect(()=>{    
+    getFooterDets();
     }, []);
     
     const active = props.active
@@ -43,7 +46,12 @@ export default function Footer(props){
                     <Icon6 name="people-group" size={iconSize} color={'black'} style={active =='people-group' ? [styles.icons, styles.active] : styles.icons}/>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={()=>{navigation.navigate('Alert')}}>
+                <TouchableOpacity onPress={()=>{navigation.navigate('Alert')}} style={{position:'relative'}}>
+                    <View style={{position:'absolute', right:0}}>
+                        <Text style={{color:'white', textAlign:'right'}}>
+                            {footerData['notification_count'] !== 0 && footerData['notification_count'] }
+                        </Text>
+                    </View>
                     <MIcon name="notifications" size={iconSize} color={'black'} style={active =='notifications' ? [styles.icons, styles.active] : styles.icons}/>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>{navigation.navigate('Dms')}}>
