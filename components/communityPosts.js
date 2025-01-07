@@ -235,7 +235,7 @@ export default function CPosts(props) {
                     </Text>
                     <View style={{ flexDirection: 'row', width: width / 3, justifyContent: 'space-evenly', alignSelf: 'center' }}>
                         <TouchableOpacity onPress={() => {
-                            exitCommunity(data['post_list'][0]['community']);
+                            exitCommunity(data['community_details']['community_id']);
                         }}>
                             <Text style={[{ backgroundColor: 'red' }, styles.button]}>
                                 Exit

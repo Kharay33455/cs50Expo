@@ -107,6 +107,7 @@ export default function Dms() {
                 </Text>
                 <View style={{ flexDirection: 'row', width: width / 3, justifyContent: 'space-evenly', alignSelf: 'center' }}>
                     <TouchableOpacity onPress={()=>{
+                        
                         deletChat(chatId);
                     }}>
                         <Text style={[{ backgroundColor: 'red' }, styles.button]}>
