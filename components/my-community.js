@@ -77,7 +77,7 @@ export default function MyCommunity() {
 
                     <>
                         <FlatList data={data['communities']} renderItem={({ item }) =>
-                            <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />} style={{height:height/1.5}} />
+                            <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} communityPfp = {item['pfp'] }/>} style={{height:height/1.5}} />
                     </>
 
                 }

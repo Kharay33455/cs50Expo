@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Top from './top';
 import { useEffect, useState } from 'react';
 import Layout, { bodyHeight } from './layout';
+import FIcon from 'react-native-vector-icons/FontAwesome'
 // user screen dimension
 const { width, height } = Dimensions.get('window');
 // height of body section of screen
@@ -30,7 +31,7 @@ const SingleCommunityChat = (props) => {
                 navigation.navigate('CMessages', {commId :props.commId});
             }}>
                 <View style={{ flexDirection: 'row', marginBottom: height / 50 }}>
-                    <Image source={require('../images/group.png')} style={styles.image} />
+                    <Image source={ props.communityPfp ? {uri : props.communityPfp} : require('../images/group.png')} style={styles.image} />
                     {
                         // give small spacing between text border
                         // set community name display font size to base font size divided by 1.5
@@ -40,7 +41,11 @@ const SingleCommunityChat = (props) => {
                             {props.name}
                         </Text>
                         <Text>
+                            {props.lastText ===  'Photo' ? 
+                            
+                            <FIcon name='image' size={baseFontSize } color={'orange'}/>
 
+                            : props.lastText}
                         </Text>
                     </View>
                 </View>
@@ -107,7 +112,7 @@ const CommunityChat = () => {
                             }
                             <View>
                                 
-                                <FlatList data={communityChatList} renderItem={({ item }) => <SingleCommunityChat name={item['community_name']} commId = {item['community_id']} />} />
+                                <FlatList data={communityChatList} renderItem={({ item }) => <SingleCommunityChat name={item['community_name']} commId = {item['community_id']} lastText = {item['community_last_text']} communityPfp = {item['community_pfp']} />} />
                             </View>
                         </View>
                     </View>
