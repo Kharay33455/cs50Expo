@@ -1,10 +1,11 @@
-import { TextInput, Text, ActivityIndicator, Image, FlatList, View, StyleSheet, Dimensions, SafeAreaView, StatusBar, TouchableOpacity, ScrollView } from "react-native";
+import { TextInput, Text, ActivityIndicator, Image, FlatList, View, StyleSheet, Dimensions, SafeAreaView, StatusBar, TouchableOpacity, ScrollView, Keyboard } from "react-native";
 import { useState, useEffect } from "react";
 import Post from "./post";
 import Footer from "./footer";
 import Top from "./top";
 import Icon from "react-native-vector-icons/Entypo";
 import IIcons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { useNavigation } from "@react-navigation/native";
 import FIcon from 'react-native-vector-icons/FontAwesome5'
 import { baseFontSize } from "./layout";
@@ -22,6 +23,8 @@ export default function CPosts(props) {
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState(null);
     const [requests, setRequests] = useState([]);
+    // search result from member search
+    const [sResult, SetSResult] = useState(null);
     const [err, setErr] = useState('');
     const [isMod, setIsMod] = useState(false);
     const [display, SetDisplay] = useState(false);
@@ -35,6 +38,11 @@ export default function CPosts(props) {
     const [newCommunityDescription, SetNewCommunityDescription] = useState('');
     const [newCommunityPfp, SetNewCommunityPfp] = useState(null);
 
+    // is searing member
+    const [isSearching, SetIsSearching] = useState(false);
+
+
+
     // community privacy
     const [isPrivate, setIsPrivate] = useState(null)
     const navigation = useNavigation();
@@ -44,12 +52,13 @@ export default function CPosts(props) {
 
     const iconSize = width / 20;
     const id = props.route.params['id']
+
+
     const get = async () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/get-community-posts?id=' + id);
             const result = await response.json();
             if (response.status === 200) {
-                console.log(result)
                 setData(result);
                 setIsLoading(false);
                 setIsPrivate(result['community_details']['community_is_private']);
@@ -57,12 +66,11 @@ export default function CPosts(props) {
                 SetNewCommunityDescription(result['community_details']['community_description'])
                 SetNewCommunityPfp(result['community_details']['community_pfp']);
                 setCsrf(result['csrf'])
-                console.log(result);
 
             }
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -75,15 +83,15 @@ export default function CPosts(props) {
             if (response.status === 200) {
                 navigation.navigate('MyCommunity');
             }
-            if (response.status === 403){
+            if (response.status === 403) {
                 const result = await response.json();
                 setErr(result['err']);
-                setTimeout(()=>{
+                setTimeout(() => {
                     setErr('');
                 }, 3000);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 
@@ -105,14 +113,14 @@ export default function CPosts(props) {
             }
             if (response.status === 200) {
                 setRequests(result);
-                console.log(result)
                 setIsMod(true);
                 SetDisplay(true);
                 SetMods(result['mods'])
+                SetSResult(result['members']);
             }
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
         // set false after retrieval
         finally {
@@ -179,37 +187,39 @@ export default function CPosts(props) {
     };
 
     // set and unset mod
-    const changeMod = async(userId, commId)=>{
+    const changeMod = async (userId, commId) => {
         try {
-            const resp = await fetch('http://192.168.0.4:8000/api-person/edit-mod?personId='+userId+'&communityId='+commId);
+            const resp = await fetch('http://192.168.0.4:8000/api-person/edit-mod?personId=' + userId + '&communityId=' + commId);
             // if expected error from server
-            if (resp.status === 403){
+            if (resp.status === 403) {
                 // display error for 3 seconds
                 const result = await resp.json();
                 setErr(result['err']);
-                setTimeout(()=>{
+                setTimeout(() => {
                     setErr('');
                 }, 3000);
             }
             // on success, add id of users to list of mods
-            if (resp.status === 200){
+            if (resp.status === 200) {
                 // if they're already in the mod list, remove them. If they're not, push them to list
-                mods.includes(userId) ? 
-                SetMods((mods)=> mods.filter(modItem => modItem !== userId))
-                :
-                SetMods((mods)=>[...mods, userId]);
+                mods.includes(userId) ?
+                    SetMods((mods) => mods.filter(modItem => modItem !== userId))
+                    :
+                    SetMods((mods) => [...mods, userId]);
             }
             // if unexpected error, display unexpected error for 3 seconds
         } catch (error) {
             setErr('An unexpected error has occured.');
             setErr(result['err']);
-            setTimeout(()=>{
+            setTimeout(() => {
                 setErr('');
-            }, 3000);           
+            }, 3000);
             console.error(error)
         }
 
     }
+
+
 
 
     useEffect(() => {
@@ -217,11 +227,36 @@ export default function CPosts(props) {
     }, []);
 
 
+    const updateMemList = (event) => {
+
+        if (requests['members']) {
+
+            const memberSR = requests['members'].filter((item) =>
+                item['display_name'].toLowerCase().includes(event.toLowerCase())
+            )
+
+            SetSResult(memberSR)
+        };
+        if (!event) {
+            SetSResult(requests['members']);
+        }
+
+    }
+
     newCommunityName && newCommunityName.length > 50 && SetNewCommunityName(newCommunityName.slice(0, 50));
     newCommunityDescription && newCommunityDescription.length > 1000 && SetNewCommunityDescription(newCommunityDescription.slice(0, 1000));
 
 
+    useEffect(() => {
+        const KeyboardShow = Keyboard.addListener('keyboardWillShow', () => { SetIsSearching(true) });
+        const KeyboardHide = Keyboard.addListener('keyboardWillHide', () => { SetIsSearching(false) });
 
+        return () => {
+            KeyboardShow.remove();
+            KeyboardHide.remove();
+        }
+
+    }, []);
 
     return (
         <>
@@ -248,45 +283,48 @@ export default function CPosts(props) {
                 {
 
                     loadingRequest ? <ActivityIndicator /> :
+                        <View style={{ display: isSearching ? 'none' : 'flex' }}>
 
-                        requests['join_requests'].length === 0 ?
-                            <View>
-                                <Text style={{ fontSize: width / 10, textAlign: 'center' }}>No pending requests</Text>
-                            </View> :
-                            <View style={{height:height}}>
-                            <FlatList data={requests['join_requests']} renderItem={({ item }) =>
+                            {requests['join_requests'].length === 0 ?
+                                <View>
+                                    <Text style={{ fontSize: width / 10, textAlign: 'center' }}>No pending requests</Text>
+                                </View> :
+                                <View style={{ height: height }}>
+                                    <FlatList data={requests['join_requests']} renderItem={({ item }) =>
 
 
-                                <View style={{ flexDirection: "row", justifyContent: 'space-between', padding: width / 20, }}>
-                                    <View>
-                                        <Text style={{ fontWeight: '900', fontSize: width / 25 }}>
-                                            {item['username']}
-                                        </Text>
-                                    </View>
+                                        <View style={{ flexDirection: "row", justifyContent: 'space-between', padding: width / 20, }}>
+                                            <View>
+                                                <Text style={{ fontWeight: '900', fontSize: width / 25 }}>
+                                                    {item['username']}
+                                                </Text>
+                                            </View>
 
-                                    <View style={{ flexDirection: 'row', width: width / 6, justifyContent: 'space-between' }}>
-                                        <TouchableOpacity onPress={() => {
-                                            get_requests(item['id'], 0);
-                                        }}>
-                                            <Text style={[styles.iconImage, { backgroundColor: 'green' }]}>
-                                                <Icon name="add-user" size={iconSize} color={'white'} />
-                                            </Text>
-                                        </TouchableOpacity>
+                                            <View style={{ flexDirection: 'row', width: width / 6, justifyContent: 'space-between' }}>
+                                                <TouchableOpacity onPress={() => {
+                                                    get_requests(item['id'], 0);
+                                                }}>
+                                                    <Text style={[styles.iconImage, { backgroundColor: 'green' }]}>
+                                                        <Icon name="add-user" size={iconSize} color={'white'} />
+                                                    </Text>
+                                                </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => {
-                                            get_requests(item['id'], 1);
-                                        }}>
-                                            <Text style={[styles.iconImage, { backgroundColor: 'red' }]}>
-                                                <Icon name="remove-user" size={iconSize} color={'white'} />
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                                <TouchableOpacity onPress={() => {
+                                                    get_requests(item['id'], 1);
+                                                }}>
+                                                    <Text style={[styles.iconImage, { backgroundColor: 'red' }]}>
+                                                        <Icon name="remove-user" size={iconSize} color={'white'} />
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    } />
                                 </View>
-                            } />
-                            </View>
+                            }
+                        </View>
                 }
-                <ScrollView style={{height : height/2}}>
-                    <View style={{ padding: width / 20 }}>
+                <ScrollView style={{ height: height / 1.5 }}>
+                    <View style={{ padding: width / 20, display: isSearching ? 'none' : 'flex' }}>
                         <Text style={{ textAlign: 'center', fontWeight: '900', color: "green" }}>{msg}</Text>
                         <TextInput style={styles.textInput} placeholder="Change community name" value={newCommunityName} onChangeText={SetNewCommunityName} />
                         <TextInput style={styles.textInput} placeholder="Change description" value={newCommunityDescription} onChangeText={SetNewCommunityDescription} />
@@ -348,12 +386,26 @@ export default function CPosts(props) {
                         </View>
 
                     </View>
-                    <View style={{ padding: width / 50 }}>
-                        <TextInput style={[styles.textInput, { width: width * 0.8 }]} placeholder="Search for member" />
+                    <View style={{ padding: width / 50, paddingBottom: height / 3 }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <View>
+                                <TextInput style={[styles.textInput, { width: width * 0.8 }]} placeholder="Search for member" onChangeText={updateMemList} />
+                            </View>
+
+                            <TouchableOpacity style={{display:'flex', justifyContent:'center', alignItems:'center', alignContent:'center', width:width*0.15}}
+                            onPress={()=>{
+                                Keyboard.dismiss();
+                            }}
+                            >
+                                
+                                <MaterialIcons name="keyboard-hide" size={iconSize * 1.5} color={'orange'} style={{textAlign:'center'}}/>
+                            
+                            </TouchableOpacity>
+                        </View>
                         <View>
                             {loadingRequest ? <ActivityIndicator /> :
                                 <>
-                                    {requests['members'].map((item) =>
+                                    {sResult.map((item) =>
                                         <View key={item['id']} style={{ width: width, margin: width / 50 }}>
                                             {
                                                 // width is now width - width/25
@@ -372,19 +424,19 @@ export default function CPosts(props) {
                                                 </View>
                                                 <View style={{ width: (width - width / 25) * 0.2 }}>
                                                     <View style={{ flexDirection: 'row', justifyContent: "space-between", alignSelf: 'center' }}>
-                                                        
-                                                        <TouchableOpacity style={styles.modButtonContainer} 
-                                                        onPress={()=>{
-                                                            changeMod(item['id'], data['community_details']['community_id']);
-                                                        }}
-                                                        >
-                                                        { mods.includes(item['id']) ? 
-                                                            <FeatherIcon name="user-check" size={iconSize} color={'orange'} style={styles.modButton} backgroundColor="orange" />
-                                                        :
-                                                            <FeatherIcon name="user-x" size={iconSize} style={[styles.modButton, { backgroundColor: 'red', }]} />
-                                                        }
 
-                                                            </TouchableOpacity>
+                                                        <TouchableOpacity style={styles.modButtonContainer}
+                                                            onPress={() => {
+                                                                changeMod(item['id'], data['community_details']['community_id']);
+                                                            }}
+                                                        >
+                                                            {mods.includes(item['id']) ?
+                                                                <FeatherIcon name="user-check" size={iconSize} color={'orange'} style={styles.modButton} backgroundColor="orange" />
+                                                                :
+                                                                <FeatherIcon name="user-x" size={iconSize} style={[styles.modButton, { backgroundColor: 'red', }]} />
+                                                            }
+
+                                                        </TouchableOpacity>
                                                     </View>
                                                 </View>
                                             </View>
@@ -426,20 +478,21 @@ export default function CPosts(props) {
 
 
                             {isLoading ? <ActivityIndicator /> : data['isMod'] === true &&
-                                <TouchableOpacity onPress={() => {
-                                }}>
-                                    <View style={{ textAlign: 'center' }}>
-                                        <Text style={{ textAlign: 'center' }}>
-                                            <TouchableOpacity>
 
-                                                <IIcons name="settings" size={iconSize} color={'orange'} onPress={() => {
-                                                    get_requests(0, 0);
-                                                }} />
-                                            </TouchableOpacity>
+                                <View style={{ textAlign: 'center' }}>
+                                    <TouchableOpacity onPress={() => {
+                                        get_requests(0, 0);
+                                    }}
+                                        style={{ textAlign: "center", width: width / 4, alignSelf: 'center', justifyContent: "center" }}
+                                    >
 
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
+                                        <IIcons style={{ textAlign: "center", alignSelf: "center" }} name="settings" size={iconSize} color={'orange'} onPress={() => {
+                                            get_requests(0, 0);
+                                        }} />
+                                    </TouchableOpacity>
+
+
+                                </View>
                             }
 
                             {newCommunityDescription &&
@@ -483,9 +536,9 @@ export default function CPosts(props) {
                     <View style={showExitBox ? styles.exitBox : [styles.exitBox, { display: 'none' }]}>
 
                         <View style={{ width: width / 1.5, backgroundColor: 'orange', padding: width / 20, borderRadius: width / 20 }}>
-                        <Text style={{color:'red', fontWeight:"900", fontSize:width/33}}>
-                            {err}
-                        </Text>
+                            <Text style={{ color: 'red', fontWeight: "900", fontSize: width / 33 }}>
+                                {err}
+                            </Text>
                             <Text style={{ color: 'white', fontSize: width / 25, fontWeight: '900' }}>
                                 You're about to exit "{!isLoading && data['community_details']['community_name']}"", are you sure you want to proceed with this action?
                             </Text>
