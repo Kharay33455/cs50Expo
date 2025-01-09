@@ -1,4 +1,4 @@
-import { TextInput, Text, ActivityIndicator, Image, FlatList, View, StyleSheet, Dimensions, SafeAreaView, StatusBar, TouchableOpacity } from "react-native";
+import { TextInput, Text, ActivityIndicator, Image, FlatList, View, StyleSheet, Dimensions, SafeAreaView, StatusBar, TouchableOpacity, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import Post from "./post";
 import Footer from "./footer";
@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import FIcon from 'react-native-vector-icons/FontAwesome5'
 import { baseFontSize } from "./layout";
 import * as ImagePicker from 'expo-image-picker';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -38,6 +39,9 @@ export default function CPosts(props) {
     const [isPrivate, setIsPrivate] = useState(null)
     const navigation = useNavigation();
 
+    // store all new mods to edit state on front end without having to query back end
+    const [mods, SetMods] = useState([]);
+
     const iconSize = width / 20;
     const id = props.route.params['id']
     const get = async () => {
@@ -45,6 +49,7 @@ export default function CPosts(props) {
             const response = await fetch('http://192.168.0.4:8000/api-person/get-community-posts?id=' + id);
             const result = await response.json();
             if (response.status === 200) {
+                console.log(result)
                 setData(result);
                 setIsLoading(false);
                 setIsPrivate(result['community_details']['community_is_private']);
@@ -70,6 +75,13 @@ export default function CPosts(props) {
             if (response.status === 200) {
                 navigation.navigate('MyCommunity');
             }
+            if (response.status === 403){
+                const result = await response.json();
+                setErr(result['err']);
+                setTimeout(()=>{
+                    setErr('');
+                }, 3000);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -93,8 +105,10 @@ export default function CPosts(props) {
             }
             if (response.status === 200) {
                 setRequests(result);
+                console.log(result)
                 setIsMod(true);
                 SetDisplay(true);
+                SetMods(result['mods'])
             }
 
         } catch (error) {
@@ -150,9 +164,9 @@ export default function CPosts(props) {
             );
             const result = await response.json();
 
-            if (response.status === 200){
+            if (response.status === 200) {
                 setMsg(result['msg'])
-                setTimeout(()=>{
+                setTimeout(() => {
                     setMsg('');
                     setErr('');
                 }, 3000);
@@ -163,6 +177,39 @@ export default function CPosts(props) {
             console.error(error);
         }
     };
+
+    // set and unset mod
+    const changeMod = async(userId, commId)=>{
+        try {
+            const resp = await fetch('http://192.168.0.4:8000/api-person/edit-mod?personId='+userId+'&communityId='+commId);
+            // if expected error from server
+            if (resp.status === 403){
+                // display error for 3 seconds
+                const result = await resp.json();
+                setErr(result['err']);
+                setTimeout(()=>{
+                    setErr('');
+                }, 3000);
+            }
+            // on success, add id of users to list of mods
+            if (resp.status === 200){
+                // if they're already in the mod list, remove them. If they're not, push them to list
+                mods.includes(userId) ? 
+                SetMods((mods)=> mods.filter(modItem => modItem !== userId))
+                :
+                SetMods((mods)=>[...mods, userId]);
+            }
+            // if unexpected error, display unexpected error for 3 seconds
+        } catch (error) {
+            setErr('An unexpected error has occured.');
+            setErr(result['err']);
+            setTimeout(()=>{
+                setErr('');
+            }, 3000);           
+            console.error(error)
+        }
+
+    }
 
 
     useEffect(() => {
@@ -206,6 +253,7 @@ export default function CPosts(props) {
                             <View>
                                 <Text style={{ fontSize: width / 10, textAlign: 'center' }}>No pending requests</Text>
                             </View> :
+                            <View style={{height:height}}>
                             <FlatList data={requests['join_requests']} renderItem={({ item }) =>
 
 
@@ -235,65 +283,121 @@ export default function CPosts(props) {
                                     </View>
                                 </View>
                             } />
+                            </View>
                 }
-                <View style={{ padding: width / 20 }}>
-                <Text style={{textAlign:'center', fontWeight:'900', color:"green"}}>{msg}</Text>
-                    <TextInput style={styles.textInput} placeholder="Change community name" value={newCommunityName} onChangeText={SetNewCommunityName} />
-                    <TextInput style={styles.textInput} placeholder="Change description" value={newCommunityDescription} onChangeText={SetNewCommunityDescription} />
-                    <TouchableOpacity onPress={() => {
-                        isPrivate ? setIsPrivate(false) : setIsPrivate(true)
-                    }}>
-                        {
-                            // edit privacy
+                <ScrollView style={{height : height/2}}>
+                    <View style={{ padding: width / 20 }}>
+                        <Text style={{ textAlign: 'center', fontWeight: '900', color: "green" }}>{msg}</Text>
+                        <TextInput style={styles.textInput} placeholder="Change community name" value={newCommunityName} onChangeText={SetNewCommunityName} />
+                        <TextInput style={styles.textInput} placeholder="Change description" value={newCommunityDescription} onChangeText={SetNewCommunityDescription} />
+                        <TouchableOpacity onPress={() => {
+                            isPrivate ? setIsPrivate(false) : setIsPrivate(true)
+                        }}>
+                            {
+                                // edit privacy
 
-                            isPrivate ?
-                                <>
-                                    <FIcon name="toggle-on" color={'orange'} size={iconSize} />
-                                    <Text style={{ color: 'blue' }}>Community is private</Text>
-                                </> :
-                                <>
-                                    <FIcon name="toggle-off" color={'gray'} size={iconSize} />
-                                    <Text style={{ color: 'blue' }}>Community is public</Text>
-                                </>
+                                isPrivate ?
+                                    <>
+                                        <FIcon name="toggle-on" color={'orange'} size={iconSize} />
+                                        <Text style={{ color: 'blue' }}>Community is private</Text>
+                                    </> :
+                                    <>
+                                        <FIcon name="toggle-off" color={'gray'} size={iconSize} />
+                                        <Text style={{ color: 'blue' }}>Community is public</Text>
+                                    </>
+                            }
+                        </TouchableOpacity>
+                        {
+                            // change profile picture
+                            <View>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        pickImage();
+                                    }}
+                                >
+                                    <Text style={{ fontWeight: '900', color: 'orange' }}>
+                                        Community profile picture
+                                    </Text>
+                                    <Image source={newCommunityPfp ? { uri: newCommunityPfp } : require('../images/group.png')} style={{ width: baseFontSize * 20, height: baseFontSize * 20 }} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    SetNewCommunityPfp(null);
+                                }}>
+                                    <Text style={{ backgroundColor: "red", width: width / 4, color: "white", fontWeight: '900', textAlign: 'center', margin: width / 50, padding: width / 100, borderRadius: width / 4 }}>
+                                        Clear
+                                    </Text>
+                                </TouchableOpacity>
+
+
+
+                            </View>
+
                         }
-                    </TouchableOpacity>
-                    {
-                        // change profile picture
+
                         <View>
-                            <TouchableOpacity
+                            <TouchableOpacity style={{ width: width / 4, alignSelf: 'flex-end' }}
                                 onPress={() => {
-                                    pickImage();
+                                    changeCommunity();
                                 }}
                             >
-                                <Text style={{ fontWeight: '900', color: 'orange' }}>
-                                    Community profile picture
-                                </Text>
-                                <Image source={newCommunityPfp ? { uri: newCommunityPfp } : require('../images/group.png')} style={{ width: baseFontSize * 20, height: baseFontSize * 20 }} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                SetNewCommunityPfp(null);
-                            }}>
-                                <Text style={{ backgroundColor: "red", width: width / 4, color: "white", fontWeight: '900', textAlign: 'center', margin: width / 50, padding: width / 100, borderRadius: width / 4 }}>
-                                    Clear
+                                <Text style={{ color: 'white', fontWeight: '900', backgroundColor: 'orange', alignSelf: 'flex-end', width: width / 4, padding: width / 100, textAlign: "center", borderRadius: width / 4 }}>
+
+                                    Submit change
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                    }
 
-                    <View>
-                        <TouchableOpacity style={{ width: width / 4, alignSelf: 'flex-end' }}
-                            onPress={() => {
-                                changeCommunity();
-                            }}
-                        >
-                            <Text style={{ color: 'white', fontWeight: '900', backgroundColor: 'orange', alignSelf: 'flex-end', width: width / 4, padding: width / 100, textAlign: "center", borderRadius: width / 4 }}>
-
-                                Submit change
-                            </Text>
-                        </TouchableOpacity>
                     </View>
+                    <View style={{ padding: width / 50 }}>
+                        <TextInput style={[styles.textInput, { width: width * 0.8 }]} placeholder="Search for member" />
+                        <View>
+                            {loadingRequest ? <ActivityIndicator /> :
+                                <>
+                                    {requests['members'].map((item) =>
+                                        <View key={item['id']} style={{ width: width, margin: width / 50 }}>
+                                            {
+                                                // width is now width - width/25
 
-                </View>
+                                            }
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <View style={{ flexDirection: 'row', width: (width - width / 25) * 0.8 }}>
+                                                    <View>
+                                                        <Image source={item['pfp'] ? { uri: item['pfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, borderRadius: width / 4 }} />
+                                                    </View>
+                                                    <View>
+                                                        <Text>
+                                                            {item['display_name']}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                                <View style={{ width: (width - width / 25) * 0.2 }}>
+                                                    <View style={{ flexDirection: 'row', justifyContent: "space-between", alignSelf: 'center' }}>
+                                                        
+                                                        <TouchableOpacity style={styles.modButtonContainer} 
+                                                        onPress={()=>{
+                                                            changeMod(item['id'], data['community_details']['community_id']);
+                                                        }}
+                                                        >
+                                                        { mods.includes(item['id']) ? 
+                                                            <FeatherIcon name="user-check" size={iconSize} color={'orange'} style={styles.modButton} backgroundColor="orange" />
+                                                        :
+                                                            <FeatherIcon name="user-x" size={iconSize} style={[styles.modButton, { backgroundColor: 'red', }]} />
+                                                        }
+
+                                                            </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                            </View>
+
+                                        </View>
+
+                                    )}
+                                </>}
+                        </View>
+                    </View>
+                </ScrollView>
+
+
             </View>
 
 
@@ -315,7 +419,7 @@ export default function CPosts(props) {
 
                                 <TouchableOpacity style={styles.active}>
                                     <Text>
-                                        {data['community_details']['community_name']}
+                                        {newCommunityName}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -338,9 +442,9 @@ export default function CPosts(props) {
                                 </TouchableOpacity>
                             }
 
-                            {data['community_details']['community_description'] &&
+                            {newCommunityDescription &&
                                 <Text style={{ padding: iconSize }}>
-                                    {data['community_details']['community_description']}
+                                    {newCommunityDescription}
                                 </Text>
                             }
 
@@ -377,12 +481,16 @@ export default function CPosts(props) {
                     </TouchableOpacity>
 
                     <View style={showExitBox ? styles.exitBox : [styles.exitBox, { display: 'none' }]}>
+
                         <View style={{ width: width / 1.5, backgroundColor: 'orange', padding: width / 20, borderRadius: width / 20 }}>
+                        <Text style={{color:'red', fontWeight:"900", fontSize:width/33}}>
+                            {err}
+                        </Text>
                             <Text style={{ color: 'white', fontSize: width / 25, fontWeight: '900' }}>
                                 You're about to exit "{!isLoading && data['community_details']['community_name']}"", are you sure you want to proceed with this action?
                             </Text>
                             <Text style={{ color: 'blue', fontSize: width / 35, fontWeight: '900' }}>
-                                If this community is private, an moderator would have to approve your request to rejoin.
+                                If this community is private, a moderator would have to approve your request to rejoin.
                             </Text>
                             <View style={{ flexDirection: 'row', width: width / 3, justifyContent: 'space-evenly', alignSelf: 'center' }}>
                                 <TouchableOpacity onPress={() => {
@@ -441,5 +549,12 @@ const styles = StyleSheet.create({
         height: height / 20,
         fontWeight: '900',
         marginBottom: height / 100
+    },
+    modButton: {
+        textAlign: 'center', padding: width / 100, borderRadius: width / 4, color: 'white'
+    },
+    modButtonContainer:
+    {
+        width: width / 10, borderRadius: width / 4
     }
 })
