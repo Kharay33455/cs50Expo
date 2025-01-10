@@ -21,7 +21,7 @@ export default function CPosts(props) {
     const [msg, setMsg] = useState('');
 
     const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState(null);
+    const [data, setData] = useState(null); 
     const [requests, setRequests] = useState([]);
     // search result from member search
     const [sResult, SetSResult] = useState(null);

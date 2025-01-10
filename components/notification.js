@@ -12,14 +12,14 @@ export default function Notification(props) {
     return (
         <TouchableOpacity onPress={() => {
             navigation.navigate("PostE", { id: props.postId })
-            }}
-            style={{ margin:height/200}}
-            >
-            <View style={[styles.notif, {backgroundColor: props.isSeen ? "white" : "rgba(225,165,0,0.1)"}]}>
+        }}
+            style={{ margin: height / 200, width: width * 0.9 }}
+        >
+            <View style={[styles.notif, { backgroundColor: props.isSeen ? "white" : "rgba(225,165,0,0.1)" }]}>
                 <View style={styles.notifContainer}>
-                {props.type === "rejected-join" &&
+                    {props.type === "rejected-join" &&
                         <Icon name="handshake-slash" color='grey' size={height / 50} style={{ textAlign: 'center' }} />
-                    }                    
+                    }
                     {props.type === "accepted-join" &&
                         <Icon name="handshake" color='teal' size={height / 50} style={{ textAlign: 'center' }} />
                     }
@@ -45,6 +45,14 @@ export default function Notification(props) {
                     {
                         props.type === 'shared' &&
                         <Icon name="share-alt-square" color={'blue'} size={height / 50} style={{ textAlign: 'center' }} />
+                    }
+                    {
+                        props.type === 'is_mod' &&
+                        <Icon name="user-cog" color={'blue'} size={height / 50} style={{ textAlign: 'center' }} />
+                    }
+                    {
+                        props.type === 'not_mod' &&
+                        <Icon name="user-cog" color={'gray'} size={height / 50} style={{ textAlign: 'center' }} />
                     }
                 </View>
                 <View>
