@@ -12,6 +12,9 @@ export default function SCommunity(props) {
     const navigation = useNavigation();
     const [status, setStatus] = useState(null);
 
+    //error message
+    const [err, SetErr] = useState('');
+
 
 
     useEffect(() => {
@@ -26,11 +29,15 @@ export default function SCommunity(props) {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/join-community?communityId=' + props.id)
             console.log(response.status)
+            if (response.status === 403){
+                setStatus(403);
+            }
             if (response.status === 202) {
                 setStatus(202);
             } else if (response.status === 200) {
                 setStatus(200);
             }
+            
         } catch (error) {
             console.log(error);
         }
@@ -82,8 +89,8 @@ export default function SCommunity(props) {
                         }
                     }}>
                         <View style={{ alignSelf: 'flex-end', }}>
-                            <Text style={{ backgroundColor: status === 200 ? 'green' : status === 202 ? 'gray' : 'orange', padding: width / 30, color: 'white', fontWeight: '900', borderRadius: width / 50 }}>
-                                {status === 200 ? 'Joined' : status === 202 ? 'Requested' : props.isPrivate ? 'Request' : 'Join'
+                            <Text style={{ backgroundColor: status === 200 ? 'green' : status === 202 ? 'gray' : status === 403 ? 'red': 'orange', padding: width / 30, color: 'white', fontWeight: '900', borderRadius: width / 50 }}>
+                                {status === 200 ? 'Joined' : status === 202 ? 'Requested' : status===403? 'Banned' : props.isPrivate ? 'Request' : 'Join'
                                 }
 
                             </Text>

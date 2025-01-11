@@ -21,7 +21,7 @@ export default function CPosts(props) {
     const [msg, setMsg] = useState('');
 
     const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState(null); 
+    const [data, setData] = useState(null);
     const [requests, setRequests] = useState([]);
     // search result from member search
     const [sResult, SetSResult] = useState(null);
@@ -41,6 +41,8 @@ export default function CPosts(props) {
     // is searing member
     const [isSearching, SetIsSearching] = useState(false);
 
+    // list of banned members
+    const [banned, SetBanned] = useState([]);
 
 
     // community privacy
@@ -246,11 +248,34 @@ export default function CPosts(props) {
     newCommunityName && newCommunityName.length > 50 && SetNewCommunityName(newCommunityName.slice(0, 50));
     newCommunityDescription && newCommunityDescription.length > 1000 && SetNewCommunityDescription(newCommunityDescription.slice(0, 1000));
 
+    const banUser = async(userId, community_id) =>{
+        try {
+          const response = await fetch('http://192.168.0.4:8000/api-person/ban-user?userId='+userId+'&commId='+community_id)
+          console.log(response.status);  
+
+          if (response.status === 403){
+            const result = await response.json();
+            setErr(result['err']);
+            setTimeout(()=>{
+                setErr('');
+            }, 3000);
+          }
+
+          if (response.status === 200){
+            SetBanned((prevBanned)=> [...prevBanned, userId]);
+          }
+          
+        } catch (error) {
+            console.error(error);
+        };
+    }
+
+
 
     useEffect(() => {
         const KeyboardShow = Keyboard.addListener('keyboardWillShow', () => { SetIsSearching(true) });
         const KeyboardHide = Keyboard.addListener('keyboardWillHide', () => { SetIsSearching(false) });
-
+        
         return () => {
             KeyboardShow.remove();
             KeyboardHide.remove();
@@ -392,27 +417,27 @@ export default function CPosts(props) {
                                 <TextInput style={[styles.textInput, { width: width * 0.8 }]} placeholder="Search for member" onChangeText={updateMemList} />
                             </View>
 
-                            <TouchableOpacity style={{display:'flex', justifyContent:'center', alignItems:'center', alignContent:'center', width:width*0.15}}
-                            onPress={()=>{
-                                Keyboard.dismiss();
-                            }}
+                            <TouchableOpacity style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', alignContent: 'center', width: width * 0.15 }}
+                                onPress={() => {
+                                    Keyboard.dismiss();
+                                }}
                             >
-                                
-                                <MaterialIcons name="keyboard-hide" size={iconSize * 1.5} color={'orange'} style={{textAlign:'center'}}/>
-                            
+
+                                <MaterialIcons name="keyboard-hide" size={iconSize * 1.5} color={'orange'} style={{ textAlign: 'center' }} />
+
                             </TouchableOpacity>
                         </View>
                         <View>
                             {loadingRequest ? <ActivityIndicator /> :
                                 <>
-                                    {sResult.map((item) =>
+                                    {sResult.filter(item => !banned.includes(item['id'])).map((item) =>
                                         <View key={item['id']} style={{ width: width, margin: width / 50 }}>
                                             {
                                                 // width is now width - width/25
 
                                             }
                                             <View style={{ flexDirection: 'row' }}>
-                                                <View style={{ flexDirection: 'row', width: (width - width / 25) * 0.8 }}>
+                                                <View style={{ flexDirection: 'row', width: (width - width / 25) * 0.6 }}>
                                                     <View>
                                                         <Image source={item['pfp'] ? { uri: item['pfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, borderRadius: width / 4 }} />
                                                     </View>
@@ -422,28 +447,48 @@ export default function CPosts(props) {
                                                         </Text>
                                                     </View>
                                                 </View>
-                                                <View style={{ width: (width - width / 25) * 0.2 }}>
-                                                    <View style={{ flexDirection: 'row', justifyContent: "space-between", alignSelf: 'center' }}>
+                                                <View style={{ width: (width - width / 25) * 0.4 }}>
+                                                    <View>
+                                                        <View style={{ flexDirection: 'row', justifyContent: "space-evenly" }}>
 
-                                                        <TouchableOpacity style={styles.modButtonContainer}
-                                                            onPress={() => {
-                                                                changeMod(item['id'], data['community_details']['community_id']);
-                                                            }}
-                                                        >
-                                                            {mods.includes(item['id']) ?
-                                                                <FeatherIcon name="user-check" size={iconSize} color={'orange'} style={styles.modButton} backgroundColor="orange" />
-                                                                :
-                                                                <FeatherIcon name="user-x" size={iconSize} style={[styles.modButton, { backgroundColor: 'red', }]} />
-                                                            }
+                                                            <TouchableOpacity style={styles.modButtonContainer}
+                                                                onPress={() => {
+                                                                    changeMod(item['id'], data['community_details']['community_id']);
+                                                                }}
+                                                            >
 
-                                                        </TouchableOpacity>
+                                                                {
+                                                                    // Button to chnage user to and from mod
+                                                                }
+                                                                {mods.includes(item['id']) ?
+                                                                    <FeatherIcon name="user-check" size={iconSize} color={'orange'} style={styles.modButton} backgroundColor="orange" />
+                                                                    :
+                                                                    <FeatherIcon name="user-x" size={iconSize} style={[styles.modButton, { backgroundColor: 'red', }]} />
+                                                                }
+
+
+
+                                                            </TouchableOpacity>
+
+                                                            <TouchableOpacity onPress={() => {
+                                                                // ban user
+                                                                banUser(item['id'], data['community_details']['community_id']);
+                                                            }}>
+                                                                {
+                                                                    // button to ban user and prevent futher join requests
+                                                                }
+                                                                <FIcon name="ban" size={iconSize} style={styles.modButton} backgroundColor={'red'} />
+                                                            </TouchableOpacity>
+
+                                                        </View>
+
                                                     </View>
                                                 </View>
                                             </View>
 
                                         </View>
 
-                                    )}
+                                    ) }
                                 </>}
                         </View>
                     </View>

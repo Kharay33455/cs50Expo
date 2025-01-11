@@ -22,6 +22,9 @@ export default function Explore() {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
 
+    // error message
+    const [err, SetErr] = useState('');
+
     useEffect(() => {
         // Function to get location and request permissions
         const getLocation = async () => {
@@ -52,8 +55,9 @@ export default function Explore() {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/community?which=near&long=' + long + '&lat=' + lat + '&dist=' + dist);
             const result = await response.json()
+            if (response.status === 200){
             setData(result);
-            setIsLoading(false);
+            setIsLoading(false);}
         }
         catch (error) {
             console.error(error);

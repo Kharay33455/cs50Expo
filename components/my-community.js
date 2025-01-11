@@ -2,9 +2,9 @@ import { StatusBar } from 'expo-status-bar';
 import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ActivityIndicator, FlatList, ScrollView } from 'react-native';
 import Footer from './footer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Top from './top';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import SCommunity from './singleCommunity';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -36,9 +36,11 @@ export default function MyCommunity() {
 
     };
 
-    useEffect(() => {
-        getMyCommunities();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            getMyCommunities();
+        }, [])
+    )
 
 
 
@@ -71,13 +73,13 @@ export default function MyCommunity() {
                 </TouchableOpacity>
 
             </View>
-            
+
             <View>
                 {isLoading ? <ActivityIndicator /> :
 
                     <>
                         <FlatList data={data['communities']} renderItem={({ item }) =>
-                            <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} communityPfp = {item['pfp'] }/>} style={{height:height/1.5}} />
+                            <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} communityPfp={item['pfp']} />} style={{ height: height / 1.5 }} />
                     </>
 
                 }
@@ -85,7 +87,7 @@ export default function MyCommunity() {
                     // Add new community button
                 }
                 <View style={{ flexDirection: 'row-reverse', width: width }}>
-                    <TouchableOpacity style={{ width: width / 4 }} onPress={()=>{
+                    <TouchableOpacity style={{ width: width / 4 }} onPress={() => {
                         navigation.navigate('New Community');
                     }}>
                         <Icon name='plus' size={width / 10} style={styles.plusIcon} />
@@ -120,7 +122,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: height / 200,
         borderBottomColor: 'orange'
     },
-    plusIcon :
+    plusIcon:
     {
         backgroundColor: "orange", color: 'white', width: width / 8, textAlign: 'center', borderRadius: width / 20, margin: width / 50, padding: width / 100
     }
