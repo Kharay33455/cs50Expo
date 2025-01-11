@@ -10,3 +10,4 @@
 . Alert users of ban
 . make sure banned users cannot rejoin community(done)
 . make sure community creator cannot be banned or removed(done)
+. Lift ban

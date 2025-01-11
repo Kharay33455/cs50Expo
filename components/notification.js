@@ -54,6 +54,10 @@ export default function Notification(props) {
                         props.type === 'not_mod' &&
                         <Icon name="user-cog" color={'gray'} size={height / 50} style={{ textAlign: 'center' }} />
                     }
+                    {
+                        props.type === 'banned' &&
+                        <Icon name="ban" color={'red'} size={height / 50} style={{ textAlign: 'center' }} />                  
+                    }
                 </View>
                 <View>
                     <Fpfp uri={props.pfp} id={props.userId} />
