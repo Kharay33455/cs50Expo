@@ -2,9 +2,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, Image, ScrollView, ActivityIndicator } from 'react-native';
 import Footer from './footer';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Top from './top';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Layout, { bodyHeight } from './layout';
 import FIcon from 'react-native-vector-icons/FontAwesome'
 // user screen dimension
@@ -71,9 +71,11 @@ const CommunityChat = () => {
         }
     }
 
-    useEffect(() => {
-        getChatList();
-    }, []);
+    useFocusEffect(
+        useCallback(()=>{
+            getChatList();
+        }, [])
+    )
 
     return (
         <>

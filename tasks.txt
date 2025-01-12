@@ -12,5 +12,6 @@
 . make sure community creator cannot be banned or removed(done)
 . show all bans(done)
 . Lift ban(done)
-. Notify of their ban lift
+. Notify of their ban lift(done)
 . Display post by how close users are to viewer if you have their location
+. Refactor code to use layout component where useful

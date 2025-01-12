@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import Footer from './footer';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Top from './top';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Chat from './chat';
 
 
@@ -127,11 +127,12 @@ export default function Dms() {
         )
     };
 
-    useEffect(() => {
-        get_chats();
 
-    }, []);
-
+    useFocusEffect(
+        useCallback(()=>{
+            get_chats();
+        }, [])
+    )
 
 
 
