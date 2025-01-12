@@ -1,17 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ActivityIndicator, FlatList, ScrollView } from 'react-native';
-import Footer from './footer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Top from './top';
-import { useEffect, useState, useCallback } from 'react';
-import SCommunity from './singleCommunity';
+import { useState, useCallback } from 'react';
+import SCommunity from './community/singleCommunity';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import Head from './community/communityHead';
 
-
-const { width, height } = Dimensions.get('window');
-
-const Stack = createNativeStackNavigator();
 
 
 export default function MyCommunity() {
@@ -49,56 +43,46 @@ export default function MyCommunity() {
 
     const navigation = useNavigation();
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar style="auto" />
-            <SafeAreaView style={styles.safe}>
-                <StatusBar barStyle="dark-content" />
+        <Layout>
 
-                <View style={styles.top}>
-                    {isLoading ? <Top /> : <Top uri={data['pfp']} />}
-                </View>
-            </SafeAreaView>
-            <View style={styles.head}>
-
-                <TouchableOpacity style={styles.active} onPress={() => { navigation.navigate('MyCommunity') }}>
-                    <Text>
-                        My clubs
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => { navigation.navigate('Explore') }}>
-                    <Text>
-                        Clubs near me
-                    </Text>
-                </TouchableOpacity>
-
-            </View>
-
-            <View>
-                {isLoading ? <ActivityIndicator /> :
-
-                    <>
-                        <FlatList data={data['communities']} renderItem={({ item }) =>
-                            <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} communityPfp={item['pfp']} />} style={{ height: height / 1.5 }} />
-                    </>
-
-                }
+            <View style={{ width: bodyWidth, height: bodyHeight }}>
                 {
-                    // Add new community button
+                    // Height is body baseheight
                 }
-                <View style={{ flexDirection: 'row-reverse', width: width }}>
-                    <TouchableOpacity style={{ width: width / 4 }} onPress={() => {
-                        navigation.navigate('New Community');
-                    }}>
-                        <Icon name='plus' size={width / 10} style={styles.plusIcon} />
-                    </TouchableOpacity>
+                <View>
+                    {
+                        // navigation height takes up 5% of base height
+                    }
+                    <View style={{height : bodyHeight * 0.05}}>
+                        <Head active='MyCommunity' />
+                    </View>
+                    <View style={{height:bodyHeight * 0.94}}>
+                        {
+                            // List takes 94%. Leaving 1% for styling
+                        }
+                    {isLoading ? <ActivityIndicator /> :
+                        <>
+                            <FlatList data={data['communities']} renderItem={({ item }) =>
+                                <SCommunity isPrivate={item['is_private']} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} communityPfp={item['pfp']} />} />
+                        </>
+                    }
+                    </View>
+                    {
+                        // Add new community button
+                    }
+                    <View style={{ flexDirection: 'row-reverse', width: bodyWidth, position: 'absolute', bottom: bodyHeight / 10 }}>
+                        <TouchableOpacity style={{ width: bodyWidth / 4 }} onPress={() => {
+                            navigation.navigate('New Community');
+                        }}>
+                            <Icon name='plus' size={baseFontSize * 10} style={styles.plusIcon} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
-            <View style={styles.bottom}>
-                <Footer active="people-group" />
-            </View>
-        </SafeAreaView>
+        </Layout>
+
+
     );
 }
 
@@ -114,17 +98,17 @@ const styles = StyleSheet.create({
     bottom: {
         position: 'absolute',
         bottom: 0,
-        padding: height / 50,
+        padding: bodyHeight / 50,
         backgroundColor: 'orange',
-        width: width
+        width: bodyWidth
     },
     active: {
-        borderBottomWidth: height / 200,
+        borderBottomWidth: bodyHeight / 200,
         borderBottomColor: 'orange'
     },
     plusIcon:
     {
-        backgroundColor: "orange", color: 'white', width: width / 8, textAlign: 'center', borderRadius: width / 20, margin: width / 50, padding: width / 100
+        backgroundColor: "orange", color: 'white', width: bodyWidth / 8, textAlign: 'center', borderRadius: bodyWidth / 20, margin: bodyWidth / 50, padding: bodyWidth / 100
     }
 
 });

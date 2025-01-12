@@ -41,8 +41,8 @@ export default function Top(props) {
 
     return (
 
-        <View style={{alignSelf:'center', height: height/15}}>
-        <View style={Platform.OS == 'android' ? [styles.container, {paddingTop: height/40}] : styles.container} >
+        <View style={{alignSelf:'center'}}>
+        <View style={styles.container} >
             <TouchableOpacity>
             <Pfp uri = {pfp}/>
             </TouchableOpacity>

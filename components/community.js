@@ -2,11 +2,16 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList }
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 // This renders a single community object in the list of commmunities
-import SCommunity from './singleCommunity';
+import SCommunity from './community/singleCommunity';
 // To get user's location
 import * as Location from 'expo-location';
 // Layout and dimensioning
 import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+//Navigation head
+import Head from './community/communityHead';
+// Display this while data loads
+import Searching from './community/searching';
+
 
 export default function Explore() {
     // data and loading state
@@ -62,47 +67,13 @@ export default function Explore() {
 
     };
 
-
-    // head fucntion to navigate between my community and explore plage
-    function Head() {
-        const navigation = useNavigation();
-
-        return (
-            <View style={styles.head}>
-
-                <TouchableOpacity onPress={() => { navigation.navigate('MyCommunity') }}>
-                    <Text>
-                        My clubs
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.active} onPress={() => { navigation.navigate('Explore') }}>
-                    <Text>
-                        Clubs near me
-                    </Text>
-                </TouchableOpacity>
-
-            </View>
-        )
-    }
-
-    // Display this while running calculations
-    function Searching() {
-        return (
-            <>
-                <ActivityIndicator />
-                <Text style={{ fontSize: baseFontSize * 10 }}>
-                    Search time depends on your device gps settings...
-                </Text>
-            </>
-        );
-    }
     // main function return
     return (
 
         <Layout>
-            <Head />
             <View style={{height:bodyHeight}}>
+            <Head active='Explore'/>
+
                 {isLoading ?
                     <Searching />
                     :
@@ -126,11 +97,7 @@ export default function Explore() {
 }
 
 const styles = StyleSheet.create({
-    // style for navigation bars
-    head: {
-        flexDirection: 'row',
-        justifyContent: 'space-around'
-    },
+
     // emphasize button
     emp: {
         width: bodyWidth / 3,
@@ -149,9 +116,4 @@ const styles = StyleSheet.create({
         borderRadius: bodyWidth / 20
     },
     // mark what bar is active with yellow underline
-    active: {
-        borderBottomWidth: bodyHeight / 200,
-        borderBottomColor: 'orange'
-    },
-
 });

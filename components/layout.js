@@ -1,17 +1,15 @@
 // all imports
-import { Dimensions, StyleSheet, View, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { Dimensions, StyleSheet, View, StatusBar, Platform } from 'react-native';
 import Footer from './footer';
 import { useNavigation } from '@react-navigation/native';
 import Top from './top';
 import React from 'react';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 // user screen dimension
 const { width, height } = Dimensions.get('window');
-
-const iosBar = Platform.OS  === 'ios' ? height/20 : 0
-const androidBar = Platform.OS === 'android' ? height/40 : 0 
+ 
 // height of body section of screen
-export const bodyHeight = height - height / 20 - height / 15 - height / 50 - height / 50 - iosBar - androidBar;
+export const bodyHeight = Platform.OS === 'android' ?  height * 0.83 : height *0.8
 
 // origin of all fonts. All font sizes are mathematical functions of this number. Change this to change all font size
 export const baseFontSize = width/100
@@ -27,11 +25,11 @@ export default function Layout({children, props}) {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar style="dark-content" />
-            <View style={{height : height/13}}>
+            <View style={{height : height * 0.05}}>
                 <Top />
             </View>
     
-            <View style={{ height: bodyHeight, paddingLeft:width/100, paddingRight:width/100 }}>
+            <View style={{paddingLeft:width/100, paddingRight:width/100 }}>
 
                 {React.Children.map(children, child=>
                     React.cloneElement(child, {bodyHeight : bodyHeight, baseFontSize : baseFontSize})
@@ -49,16 +47,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     },
     bottom: {
         padding: height / 50,
         backgroundColor: 'orange',
-        width: width
+        width: width,
+        height : height * 0.20
     },
     active: {
         borderBottomWidth: height / 200,
         borderBottomColor: 'orange'
     },
-
 });

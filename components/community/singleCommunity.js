@@ -55,7 +55,7 @@ export default function SCommunity(props) {
                             <View>
 
                                 <View style={{ flexDirection: 'row' }}>
-                                    <Image source={ props.communityPfp ? {uri:props.communityPfp} : require('../images/group.png')} style={styles.innerImage} />
+                                    <Image source={ props.communityPfp ? {uri:props.communityPfp} : require('../../images/group.png')} style={styles.innerImage} />
 
                                     <View style={styles.innerCommunityText}>
                                         <Text style={{ fontWeight: 'bold', fontSize: width / 40 }}>
