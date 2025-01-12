@@ -290,7 +290,11 @@ export default function CPosts(props) {
 
             if (response.status === 200) {
                 const newBannedPerson = sResult.find(dictionary => dictionary.id === userId)
+                // add user to banned user list
                 SetBanned((prevBanned) => [...prevBanned, newBannedPerson]);
+                // delete user from unbanned user list
+                newUnbannedList = sResult.filter((item)=> item && item !== newBannedPerson);
+                SetSResult(newUnbannedList);
             }
 
         } catch (error) {

@@ -58,6 +58,10 @@ export default function Notification(props) {
                         props.type === 'banned' &&
                         <Icon name="ban" color={'red'} size={height / 50} style={{ textAlign: 'center' }} />                  
                     }
+                                        {
+                        props.type === 'unban' &&
+                        <Icon name="user-plus" color={'green'} size={height / 50} style={{ textAlign: 'center' }} />                  
+                    }
                 </View>
                 <View>
                     <Fpfp uri={props.pfp} id={props.userId} />
@@ -92,7 +96,8 @@ const styles = StyleSheet.create({
     text:
     {
         fontSize: width / 30,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        width: width *0.8
     },
     notifPost:
     {
