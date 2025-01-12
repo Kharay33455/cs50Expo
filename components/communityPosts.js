@@ -8,7 +8,7 @@ import IIcons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { useNavigation } from "@react-navigation/native";
 import FIcon from 'react-native-vector-icons/FontAwesome5'
-import { baseFontSize } from "./layout";
+import { baseFontSize, bodyWidth } from "./layout";
 import * as ImagePicker from 'expo-image-picker';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
@@ -117,8 +117,9 @@ export default function CPosts(props) {
                 setRequests(result);
                 setIsMod(true);
                 SetDisplay(true);
-                SetMods(result['mods'])
+                SetMods(result['mods']);
                 SetSResult(result['members']);
+                SetBanned(result['banned']);
             }
 
         } catch (error) {
@@ -228,43 +229,70 @@ export default function CPosts(props) {
         get();
     }, []);
 
-
+// auto update member list on search
     const updateMemList = (event) => {
-
+        // if member is not null
         if (requests['members']) {
-
+            // filter memebers whose name contains search parameters
             const memberSR = requests['members'].filter((item) =>
                 item['display_name'].toLowerCase().includes(event.toLowerCase())
             )
-
+            // set current members
             SetSResult(memberSR)
         };
         if (!event) {
+            // when all characters are clear, set back to list that came from backend
             SetSResult(requests['members']);
         }
 
     }
 
+    // function to unban user
+    const liftBan = async(userId, communityId) => {
+        try {
+            const resp = await fetch('http://192.168.0.4:8000/api-person/lift-ban?userId='+userId+'&communityId='+communityId);
+            console.log(resp.status);
+            if (resp.status===200){
+                // remove member from banned list and push member to unbanned list
+                const tempBan = banned.filter((item)=> item && item['id'] !== userId);
+                const latestUnbanned = banned.find(dict => dict.id === userId);
+                SetBanned(tempBan);
+                SetSResult((prev) => [...prev, latestUnbanned]);
+                return;
+            }
+            if(resp.status === 403){
+                const result = await resp.json()
+                setErr(result['err']);
+                setTimeout(()=>{
+                    setErr('');
+                }, 3000);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     newCommunityName && newCommunityName.length > 50 && SetNewCommunityName(newCommunityName.slice(0, 50));
     newCommunityDescription && newCommunityDescription.length > 1000 && SetNewCommunityDescription(newCommunityDescription.slice(0, 1000));
 
-    const banUser = async(userId, community_id) =>{
+    const banUser = async (userId, community_id) => {
         try {
-          const response = await fetch('http://192.168.0.4:8000/api-person/ban-user?userId='+userId+'&commId='+community_id)
-          console.log(response.status);  
+            const response = await fetch('http://192.168.0.4:8000/api-person/ban-user?userId=' + userId + '&commId=' + community_id)
+            console.log(response.status);
 
-          if (response.status === 403){
-            const result = await response.json();
-            setErr(result['err']);
-            setTimeout(()=>{
-                setErr('');
-            }, 3000);
-          }
+            if (response.status === 403) {
+                const result = await response.json();
+                setErr(result['err']);
+                setTimeout(() => {
+                    setErr('');
+                }, 3000);
+            }
 
-          if (response.status === 200){
-            SetBanned((prevBanned)=> [...prevBanned, userId]);
-          }
-          
+            if (response.status === 200) {
+                const newBannedPerson = sResult.find(dictionary => dictionary.id === userId)
+                SetBanned((prevBanned) => [...prevBanned, newBannedPerson]);
+            }
+
         } catch (error) {
             console.error(error);
         };
@@ -275,7 +303,7 @@ export default function CPosts(props) {
     useEffect(() => {
         const KeyboardShow = Keyboard.addListener('keyboardWillShow', () => { SetIsSearching(true) });
         const KeyboardHide = Keyboard.addListener('keyboardWillHide', () => { SetIsSearching(false) });
-        
+
         return () => {
             KeyboardShow.remove();
             KeyboardHide.remove();
@@ -430,7 +458,7 @@ export default function CPosts(props) {
                         <View>
                             {loadingRequest ? <ActivityIndicator /> :
                                 <>
-                                    {sResult.filter(item => !banned.includes(item['id'])).map((item) =>
+                                    {sResult.filter(item => !banned.includes(item)).map((item) =>
                                         <View key={item['id']} style={{ width: width, margin: width / 50 }}>
                                             {
                                                 // width is now width - width/25
@@ -488,8 +516,53 @@ export default function CPosts(props) {
 
                                         </View>
 
-                                    ) }
+                                    )}
                                 </>}
+                        </View>
+                        {
+                            // Show banned users to admin
+                        }
+                        <View style={{ width: width, alignSelf: 'center' }}>
+                            <View style={{ padding: width / 30 }}>
+                                <Text style={{ fontWeight: "900", fontSize: baseFontSize * 5 }}>Banned users</Text>
+
+                                <View>
+                                    {
+
+                                        banned.map((item) =>
+
+                                            <View key={item['id']} style={{ width: width * 0.9, alignSelf: "center" }}>
+                                                <View style={{ flexDirection: "row", width: width * 0.9 }}>
+                                                    <View style={{ flexDirection: "row", width: (width * 0.9) * 0.7 }}>
+
+                                                        <Image source={item['pfp'] ? { uri: item['pfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, borderRadius: width / 4 }} />
+
+                                                        <Text style={{ padding: width / 50, fontWeight: '900' }}>
+                                                            {item['display_name']}
+                                                        </Text>
+
+                                                    </View>
+                                                    <View style={{ width: (width * 0.9) * 0.3, textAlign: "center", flexDirection: 'row', justifyContent: "center", display: "flex" }}>
+                                                        <View>
+                                                            <TouchableOpacity 
+                                                            onPress={()=>{
+                                                                liftBan(item['id'], data['community_details']['community_id']);
+                                                            }}
+                                                            >
+                                                                <Text style={[{ color: "white", backgroundColor: 'orange', padding: width / 100, fontWeight: "900", borderRadius: width / 50 }]}>
+                                                                    Lift ban
+                                                                </Text>
+                                                            </TouchableOpacity>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        )
+
+                                    }
+                                </View>
+
+                            </View>
                         </View>
                     </View>
                 </ScrollView>

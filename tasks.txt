@@ -7,7 +7,9 @@
 . Allow users safely exit communities(done)
 . Notify users of unseen notications(done)
 . Give admin abiity to delete community posts
-. Alert users of ban
+. Alert users of ban(done)
 . make sure banned users cannot rejoin community(done)
 . make sure community creator cannot be banned or removed(done)
+. show all bans
 . Lift ban
+. Display post by how close users are to viewer if you have their location
