@@ -18,12 +18,16 @@ export const baseFontSize = width/100
 
 export const bodyWidth = width - (2 * width/100);
 
-export default function Layout({children}) {
+
+
+export default function Layout({children, props}) {
+    const uri = props
+    console.log(uri)
     const navigation = useNavigation();
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar style="dark-content" />
-            <View style={styles.top}>
+            <View style={{height : height/13}}>
                 <Top />
             </View>
     
