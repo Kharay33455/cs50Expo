@@ -1,13 +1,15 @@
+// Import sste components
+import {StyleSheet, ActivityIndicator, FlatList, View } from 'react-native';
 
-import { Dimensions, StyleSheet, ActivityIndicator, FlatList, View } from 'react-native';
+// Import Post component. This custom component renders a single post
 import Post from './post';
+
+// useEffect to rerender on state change and useState to manage states
 import { useEffect, useState } from 'react';
 
-// Import custom parameters
-import Layout, {bodyHeight} from './layout';
+// Import custom component layout and parameters for dimensioning
+import Layout, {bodyHeight, bodyWidth} from './layout';
 
-// Get screen dimensions
-const { width, height } = Dimensions.get('window');
 
 // default function expoty
 export default function Posts() {
@@ -33,6 +35,7 @@ export default function Posts() {
             console.error(error)
         }
         finally {
+            // display data and stop displaying activity indicator.
             setIsLoading(false)
         }
     };
@@ -71,8 +74,8 @@ const styles = StyleSheet.create({
 
     // styling for post container
     post: {
-        paddingLeft: width / 50,
-        paddingRight: width / 50,
+        paddingLeft: bodyWidth / 50,
+        paddingRight: bodyWidth / 50,
         height:bodyHeight
     },
 });

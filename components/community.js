@@ -1,29 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
-import Footer from './footer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Top from './top';
 import { useEffect, useState } from 'react';
+// This renders a single community object in the list of commmunities
 import SCommunity from './singleCommunity';
+// To get user's location
 import * as Location from 'expo-location';
-
-
-const { width, height } = Dimensions.get('window');
-
-const Stack = createNativeStackNavigator();
-
+// Layout and dimensioning
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
 
 export default function Explore() {
-
+    // data and loading state
     const [data, setData] = useState({});
     const [isLoading, setIsLoading] = useState(true);
 
+    // user location
     const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
 
-    // error message
-    const [err, SetErr] = useState('');
+    // err messaging system
+    const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
         // Function to get location and request permissions
@@ -44,20 +38,20 @@ export default function Explore() {
             getMyCommunities(location.coords.longitude, location.coords.latitude, 0.2);
             console.log(location);
         };
-
         getLocation();
-
     }, []);
 
 
-
+    // function that takes in user longitude, laditude and a range (dist). It uses this to find community close to user.
     const getMyCommunities = async (long, lat, dist) => {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/community?which=near&long=' + long + '&lat=' + lat + '&dist=' + dist);
             const result = await response.json()
-            if (response.status === 200){
-            setData(result);
-            setIsLoading(false);}
+            if (response.status === 200) {
+                setData(result);
+                console.log(result)
+                setIsLoading(false);
+            }
         }
         catch (error) {
             console.error(error);
@@ -69,21 +63,11 @@ export default function Explore() {
     };
 
 
+    // head fucntion to navigate between my community and explore plage
+    function Head() {
+        const navigation = useNavigation();
 
-
-
-    const navigation = useNavigation();
-    return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar style="auto" />
-            <SafeAreaView style={styles.safe}>
-                <StatusBar barStyle="dark-content" />
-
-                <View style={styles.top}>
-                    {isLoading ?
-                        <Top /> : <Top uri={data['pfp']} />}
-                </View>
-            </SafeAreaView>
+        return (
             <View style={styles.head}>
 
                 <TouchableOpacity onPress={() => { navigation.navigate('MyCommunity') }}>
@@ -99,83 +83,75 @@ export default function Explore() {
                 </TouchableOpacity>
 
             </View>
-            <View>
-                {isLoading ?
-                    <>
-                        <ActivityIndicator />
-                        <Text style={{ fontSize: width / 10 }}>
-                            Search time depends on your device gps settings...
-                        </Text>
-                    </> :
+        )
+    }
 
+    // Display this while running calculations
+    function Searching() {
+        return (
+            <>
+                <ActivityIndicator />
+                <Text style={{ fontSize: baseFontSize * 10 }}>
+                    Search time depends on your device gps settings...
+                </Text>
+            </>
+        );
+    }
+    // main function return
+    return (
+
+        <Layout>
+            <Head />
+            <View style={{height:bodyHeight}}>
+                {isLoading ?
+                    <Searching />
+                    :
                     <>
                         <FlatList data={data['communities']} renderItem={({ item }) =>
+                            <SCommunity requested={item['requested']} isPrivate={item['is_private']} isMember={false} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />
 
-                            <SCommunity requested = {item['requested']} isPrivate={item['is_private']} isMember={false} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />
-
-                        } style={{height:height/1.5}}/>
+                        } style={{height : bodyHeight * 0.8 }}/>
                         <TouchableOpacity onPress={() => {
-                            setIsLoading(true);
-                            getMyCommunities(location.longitude, location.latitude, dist = data['dist']);
-                            console.log('done')
-                            setIsLoading(false);
-
-                        }}>
+                            getMyCommunities(location.longitude, location.latitude, data['dist']);
+                        }} style={{height : bodyHeight *0.2}}>
                             <View style={styles.emp}>
                                 <Text style={styles.logButton}> Increase range </Text>
-
                             </View>
                         </TouchableOpacity>
                     </>
-
-
-
                 }
-
             </View>
-            <View style={styles.bottom}>
-                <Footer active="people-group" />
-            </View>
-        </SafeAreaView>
+        </Layout>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
+    // style for navigation bars
     head: {
         flexDirection: 'row',
         justifyContent: 'space-around'
     },
-    bottom: {
-        position: 'absolute',
-        bottom: 0,
-        padding: height / 50,
-        backgroundColor: 'orange',
-        width: width
-    },
-    active: {
-        borderBottomWidth: height / 200,
-        borderBottomColor: 'orange'
-    },
+    // emphasize button
     emp: {
-        fontSize: width / 50,
-        fontWeight: '200',
-        width: width / 3,
+        width: bodyWidth / 3,
         alignSelf: 'center',
-        marginTop: height / 50,
-        padding: width / 50,
+        marginTop: bodyHeight / 50,
+        padding: bodyWidth / 50,
     },
+    // orange button
     logButton: {
-        fontSize: width / 30,
+        fontSize: baseFontSize * 3,
         fontWeight: '900',
         backgroundColor: 'orange',
         color: 'white',
         textAlign: 'center',
-        padding: width / 50,
-        borderRadius: width / 20
-    }
+        padding: bodyWidth / 50,
+        borderRadius: bodyWidth / 20
+    },
+    // mark what bar is active with yellow underline
+    active: {
+        borderBottomWidth: bodyHeight / 200,
+        borderBottomColor: 'orange'
+    },
 
 });
