@@ -19,7 +19,7 @@ const SingleCommunityChat = (props) => {
     const navigation = useNavigation();
 
     return (
-        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between' }} onPress = {()=>{
+        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between' }} onPress={() => {
             navigation.navigate('CMessages', { commId: props.commId });
 
         }}>
@@ -87,37 +87,43 @@ const CommunityChat = () => {
 
 
     return (
-        <View style={{height:bodyHeight}}>
-        <>
-            {loading ? <ActivityIndicator /> :
-                <>
-                    <MSHead active='CMS' />
+        <View style={{ height: bodyHeight }}>
+            <>
+                {loading ? <ActivityIndicator /> :
+                    <>
+                        <MSHead active='CMS' />
 
-                    {
-                        // Entire body section. Paadding on left and right for styling
-                    }
-                    <View style={{ paddingLeft: bodyWidth / 100, paddingRight: bodyWidth / 100 }}>
                         {
-                            // Make height body height to allow scroll on multiple devices
+                            // Entire body section. Paadding on left and right for styling
                         }
-                        <View style={{ height: bodyHeight }}>
-                            <View>
-                                <Text style={{ fontSize: baseFontSize * 4 }}>
-                                    Warning: Community chats are public. Please keep personal information, such as your address and contact details, private.
-                                </Text>
-                            </View>
+                        <View style={{ paddingLeft: bodyWidth / 100, paddingRight: bodyWidth / 100 }}>
                             {
-                                // list of communities
+                                // Make height body height to allow scroll on multiple devices
                             }
-                            <View>
+                            <View style={{ height: bodyHeight }}>
+                                <View>
+                                    <Text style={{ fontSize: baseFontSize * 4 }}>
+                                        Warning: Community chats are public. Please keep personal information, such as your address and contact details, private.
+                                    </Text>
+                                </View>
+                                {
+                                    // list of communities
+                                }
+                                <View>
 
-                                <FlatList data={communityChatList} renderItem={({ item }) => <SingleCommunityChat name={item['community_name']} commId={item['community_id']} lastText={item['community_last_text']} communityPfp={item['community_pfp']} item={item} />} />
+                                    <FlatList data={communityChatList} renderItem={({ item }) =>
+
+                                        <View>
+                                            <SingleCommunityChat name={item['community_name']} commId={item['community_id']} lastText={item['community_last_text']} communityPfp={item['community_pfp']} item={item} />
+                                        </View>
+                                    }
+                                    />
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </>
-            }
-        </>
+                    </>
+                }
+            </>
         </View>
     )
 }
