@@ -1,13 +1,13 @@
 // Add new community function
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
-import Footer from "./footer"
+import {Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import Icon from "react-native-vector-icons/FontAwesome"
 import { useEffect, useState } from "react"
 import { useNavigation } from "@react-navigation/native"
+import Layout, { bodyHeight, bodyWidth } from "./layout"
 
 // get dimensions
-const { width, height } = Dimensions.get('window')
-
+const width = bodyWidth
+const height = bodyWidth
 export default function NewCommunity() {
 
     // track private option on form
@@ -33,66 +33,72 @@ export default function NewCommunity() {
         setName(name.slice(0, 50));
     };
 
-    if (description.length > 1000) {
-        setDescription(description.slice(0, 1000));
+    if (description.length > 500) {
+        setDescription(description.slice(0, 500));
     };
 
-    const createCommunity = async()=>{
+    const createCommunity = async () => {
         const form = new FormData();
         form.append('name', name);
         form.append('isPrivate', isPrivate);
         form.append('description', description);
         console.log(csrf);
-        try{
+        try {
             const response = await fetch('http://192.168.0.4:8000/api-person/new-community',
                 {
-                    method : 'POST',
-                    headers:{
-                    'Content-Type': 'multipart/form-data',
-                    'X-CSRFToken': csrf
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-CSRFToken': csrf
                     },
-                    body:form
+                    body: form
                 }
-            
+
             );
             const result = await response.json();
             console.log(result);
-            if (response.status === 400){
+            if (response.status === 400) {
                 setErr('Name cannot be blank')
             }
-            if (response.status === 200){
-                navigation.navigate('CPosts', {id: result['id']});
+            if (response.status === 200) {
+                navigation.navigate('CPosts', { id: result['id'] });
             }
-        }catch(error){
+        } catch (error) {
             console.log(error);
         }
     }
 
-    const getCsrf = async()=>{
-        try{
+    const getCsrf = async () => {
+        try {
             const resp = await fetch('http://192.168.0.4:8000/api-person/new-community');
             const result = await resp.json();
             setCsrf(result['csrf']);
 
-        }catch(error){
+        } catch (error) {
             console.log(error);
         }
     }
-    useEffect(()=>{
+    useEffect(() => {
         getCsrf();
     }, []);
 
 
 
     return (
-        <>
-            <View style={{ padding: width / 40, margin: width / 40 }}>
-                <ScrollView>
+
+
+        <Layout>
+            <View style={{height:bodyHeight }} >
+                <ScrollView style={{padding: bodyWidth /50}} >
+                <TouchableOpacity onPress={()=>{
+                    Keyboard.dismiss();
+                }}>
+                    <KeyboardAvoidingView enabled={true} behavior="height">
                     <View style={{ alignSelf: 'center' }}>
                         {
                             // Error display if any
                         }
-                        <Text style={{textAlign:'center', fontWeight:'900', color:'red'}}>
+                        <Text style={{ textAlign: 'center', fontWeight: '900', color: 'red' }}>
                             {err}
                         </Text>
                         {
@@ -101,13 +107,13 @@ export default function NewCommunity() {
                         <Text>
                             Welcome to Communities! Here, you can create new communities and choose to make them either private or public. Private communities require approval from a moderator to join, while public communities allow users nearby to join and post without needing your permission.
                         </Text>
-                        <View style={{ marginTop: height / 20 }}>
+                        <View style={{ marginTop: height / 50 }}>
                             {
                                 // Community name.
                                 // Show character limits for community
                             }
                             <Text style={styles.title}>Community Name:</Text>
-                            <TextInput onChangeText={setName} value={name} style={{ height: height / 20, borderBottomWidth: 1, borderColor: 'gray', fontSize: height / 60 }} multiline={true} placeholder="Enter new community name" />
+                            <TextInput onChangeText={setName} value={name} style={{ height: height / 10, borderBottomWidth: 1, borderColor: 'gray', fontSize: height / 25 }} multiline={true} placeholder="Enter new community name" />
                             <Text>{name.length}/50</Text>
                             <Text style={{ color: 'blue' }}>Community name can only be alphanumeric. Do not use symbols.</Text>
 
@@ -133,32 +139,35 @@ export default function NewCommunity() {
                                 // Get new commmunity desctiption
                                 // show how many values remain to exhause character limit for descrption
                             }
+                            <View style={{ height: bodyHeight * 0.23 }}>
+                                <Text style={styles.title}>
+                                    Description:
+                                </Text>
+                                <TextInput value={description} onChangeText={setDescription} style={{ height: height * 0.2, borderBottomWidth: 1, borderColor: 'gray', fontSize: height / 25 }} multiline={true} placeholder="What's happening here?" />
+                                <Text>{description.length}/500</Text>
 
-                            <Text style={styles.title}>
-                                Description:
-                            </Text>
-                            <TextInput value={description} onChangeText={setDescription} style={{ height: height / 7, borderBottomWidth: 1, borderColor: 'gray', fontSize: height / 60 }} multiline={true} placeholder="What's happening here?" />
-                            <Text>{description.length}/1000</Text>
-                            <TouchableOpacity onPress={()=>{
+                            </View>
+                            <TouchableOpacity onPress={() => {
                                 createCommunity();
                             }}>
 
                                 {
                                     // Join button
                                 }
-                                <Text style={{ textAlign: 'center', padding: height / 50, backgroundColor: 'orange', alignSelf: 'center', margin: height / 50, color: 'white', fontWeight: '900', fontSize: height / 50, borderRadius: width / 10, paddingLeft: width / 5, paddingRight: width / 5 }}>
+                                <Text style={{ textAlign: 'center', padding: height / 50, backgroundColor: 'orange', alignSelf: 'center', margin: height / 50, color: 'white', fontWeight: '900', fontSize: height / 30, borderRadius: width / 10, paddingLeft: width / 5, paddingRight: width / 5 }}>
                                     Join
                                 </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
+                    </KeyboardAvoidingView>
+                    </TouchableOpacity>
 
                 </ScrollView>
             </View>
-            <View style={styles.bottom}>
-                <Footer active="people-group" />
-            </View>
-        </>
+        </Layout>
+
+
     )
 }
 
@@ -172,7 +181,7 @@ const styles = StyleSheet.create({
     },
     title:
     {
-        fontWeight: '900', fontSize: height / 50, marginTop: height / 50
+        fontWeight: '900', fontSize: height / 30, marginTop: height / 50
     }
 
 });
