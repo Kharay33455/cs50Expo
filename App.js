@@ -1,4 +1,3 @@
-import { Dimensions, StyleSheet, Text, View, SafeAreaView, StatusBar } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native'
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Posts from './components/posts';
@@ -42,7 +41,7 @@ export default function App() {
         <Stack.Screen name='PostE' component={PostE} options={{headerShown:false}}/>
         <Stack.Screen name= 'CPosts' component={CPosts} options={{headerShown:false}}/>
         <Stack.Screen name='Messages' component={Messages} options={{headerShown:false}}/>
-        <Stack.Screen name= 'New Post' component = {NewPost}/>
+        <Stack.Screen name= 'New Post' component = {NewPost} options={{headerShown : false}}/>
         <Stack.Screen name='Register' component={Register} options={{headerShown : false}}/>
         <Stack.Screen name='FProfile' component={FProfile} options={{headerShown:false}}/>
         <Stack.Screen name='New Community' component={NewCommunity}/>

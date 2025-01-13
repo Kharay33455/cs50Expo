@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
 
 
 
@@ -156,147 +157,160 @@ export default function NewPost() {
     };
     return (
 
-        <SafeAreaView style={styles.container} >
+        <Layout>
+            <ScrollView style={{ height: bodyHeight }}>
+                {
+                    err !== "" &&
+                    <Text style={{ textAlign: 'center', color: msgColor, fontSize: width / 20 }}>{err}</Text>
 
-            <StatusBar style="auto" />
-            <Text style={{ textAlign: 'center', color: msgColor, fontSize: width / 20 }}>{err}</Text>
-            <View style={styles.post}>
+                }
+                <View style={styles.post}>
 
-                <View style={{ padding: width / 50, backgroundColor: 'orange', alignSelf: 'flex-end', borderRadius: width / 70 }}>
-                    <TouchableOpacity onPress={() => {
-                        sendPost();
-                    }}>
-                        <Text style={{ alignSelf: "flex-end", textAlign: 'right', color: 'white', fontWeight: '900' }}>
-
-                            Post
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: "space-evenly" }}>
-
-                    {image1 ?
+                    <View style={{ padding: width / 50, backgroundColor: 'orange', alignSelf: 'flex-end', borderRadius: width / 70 }}>
                         <TouchableOpacity onPress={() => {
-                            pickImage(1)
+                            sendPost();
                         }}>
-                            <Image source={{ uri: image1 }} style={styles.imageS} onPress={() => {
-                                pickImage(1)
-                            }} />
-                        </TouchableOpacity>
+                            <Text style={{ alignSelf: "flex-end", textAlign: 'right', color: 'white', fontWeight: '900' }}>
 
-                        : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
-                            pickImage(1);
-                        }} />}
-
-                    {image2 ?
-                        <TouchableOpacity onPress={() => {
-                            pickImage(2)
-                        }}>
-                            <Image source={{ uri: image2 }} style={styles.imageS} onPress={() => {
-                                pickImage(2)
-                            }} />
-                        </TouchableOpacity>
-
-                        : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
-                            pickImage(2);
-                        }} />}
-
-                    {image3 ?
-                        <TouchableOpacity onPress={() => {
-                            pickImage(3)
-                        }}>
-                            <Image source={{ uri: image3 }} style={styles.imageS} onPress={() => {
-                                pickImage(3)
-                            }} />
-                        </TouchableOpacity>
-
-                        : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
-                            pickImage(3);
-                        }} />}
-
-                    {image4 ?
-                        <TouchableOpacity onPress={() => {
-                            pickImage(4)
-                        }}>
-                            <Image source={{ uri: image4 }} style={styles.imageS} onPress={() => {
-                                pickImage(4)
-                            }} />
-                        </TouchableOpacity>
-
-                        : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
-                            pickImage(4);
-                        }} />}
-
-                </View>
-
-
-                <View>
-                    <TextInput style={styles.input} multiline={true} placeholder="What's happening?" onChangeText={text.length < 501 && setText} value={text} />
-                    <Text style={{ fontWeight: 500, fontSize: width / 30, marginTop: height / 50 }}>
-                        {text.length}/500
-                    </Text>
-                    <TouchableOpacity>
-
-                        <View style={{ flexDirection: "row-reverse" }}>
-                            <View>
-                                <Text>{community ? commName : "No community selected"}</Text>
-                            </View>
-                            <Text>
-                                <Icon name='group' size={width / 20} color={'orange'} style={{ margin: width / 50 }} />
+                                Post
                             </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: "space-evenly" }}>
+
+                        {image1 ?
+                            <TouchableOpacity onPress={() => {
+                                pickImage(1)
+                            }}>
+                                <Image source={{ uri: image1 }} style={styles.imageS} onPress={() => {
+                                    pickImage(1)
+                                }} />
+                            </TouchableOpacity>
+
+                            : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
+                                pickImage(1);
+                            }} />}
+
+                        {image2 ?
+                            <TouchableOpacity onPress={() => {
+                                pickImage(2)
+                            }}>
+                                <Image source={{ uri: image2 }} style={styles.imageS} onPress={() => {
+                                    pickImage(2)
+                                }} />
+                            </TouchableOpacity>
+
+                            : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
+                                pickImage(2);
+                            }} />}
+
+                        {image3 ?
+                            <TouchableOpacity onPress={() => {
+                                pickImage(3)
+                            }}>
+                                <Image source={{ uri: image3 }} style={styles.imageS} onPress={() => {
+                                    pickImage(3)
+                                }} />
+                            </TouchableOpacity>
+
+                            : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
+                                pickImage(3);
+                            }} />}
+
+                        {image4 ?
+                            <TouchableOpacity onPress={() => {
+                                pickImage(4)
+                            }}>
+                                <Image source={{ uri: image4 }} style={styles.imageS} onPress={() => {
+                                    pickImage(4)
+                                }} />
+                            </TouchableOpacity>
+
+                            : <Icon name='image' size={width / 10} color={'orange'} onPress={() => {
+                                pickImage(4);
+                            }} />}
+
+                    </View>
+
+
+                    <View>
+                        <View style={{ height: bodyHeight / 4 }}>
+                            <View>
+                                <TextInput style={styles.input} multiline={true} placeholder="What's happening?" onChangeText={text.length < 501 && setText} value={text} />
+                            </View>
 
                         </View>
-                    </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', width: bodyWidth * 0.9, justifyContent: 'space-between' }}>
+                            <View style={{ alignSelf: "flex-start" }}>
+                                <Text style={{ fontWeight: 500, fontSize: width / 30, marginTop: height / 50 }}>
+                                    {text.length}/500
+                                </Text>
+                            </View>
 
-                </View>
+                            <View style={{ flexDirection: "row-reverse", alignSelf: 'flex-end' }}>
+                                <View>
+                                    <Text>{community ? commName : "No community selected"}</Text>
+                                </View>
+                                <Text>
+                                    <Icon name='group' size={width / 20} color={'orange'} style={{ margin: width / 50 }} />
+                                </Text>
 
-                <View>
-                    <Text style={styles.title}>
-                        Privacy:
+                            </View>
+                        </View>
 
-                    </Text>
+                    </View>
 
-                    <TouchableOpacity onPress={() => {
-                        isPrivate ? setIsPrivate(false) : setIsPrivate(true);
-                    }}>
+                    <View>
+                        <Text style={styles.title}>
+                            Privacy:
 
-                        <Icon name={isPrivate ? 'toggle-on' : 'toggle-off'} size={width / 10} style={{ color: isPrivate ? 'orange' : 'gray' }} />
-                    </TouchableOpacity>
-                    <Text style={{ color: 'blue' }}>
-                        {isPrivate ? 'Only members of your community can view this post' : 'Anyone can view this post.'}
-                    </Text>
-                </View>
+                        </Text>
 
-                <View>
-                    {!isLoading &&
-                        <FlatList data={data['comm_info']} renderItem={({ item }) =>
-                            <>
-                                <TouchableOpacity onPress={() => {
-                                    setCommunity(item.comm_id);
-                                    setCommName(item.name);
-                                }}>
-                                    <View style={{ flexDirection: "row", margin: width / 90 }}>
-                                        <View >
-                                            <Text style={{ fontSize: width / 15 }}>{item.name}</Text>
+                        <TouchableOpacity onPress={() => {
+                            isPrivate ? setIsPrivate(false) : setIsPrivate(true);
+                        }}>
+
+                            <Icon name={isPrivate ? 'toggle-on' : 'toggle-off'} size={width / 10} style={{ color: isPrivate ? 'orange' : 'gray' }} />
+                        </TouchableOpacity>
+                        <Text style={{ color: 'blue' }}>
+                            {isPrivate ? 'Only members of your community can view this post' : 'Anyone can view this post.'}
+                        </Text>
+                    </View>
+
+                    <View>
+                        {!isLoading &&
+                            <View>
+
+                                {
+                                    data['comm_info'].map((item) =>
+                                        <View key={item.comm_id}>
+                                            <TouchableOpacity onPress={() => {
+                                                setCommunity(item.comm_id);
+                                                setCommName(item.name);
+                                            }}>
+                                                <View style={{ flexDirection: "row", margin: width / 90 }}>
+                                                    <View >
+                                                        <Text style={{ fontSize: width / 15 }}>{item.name}</Text>
+                                                    </View>
+                                                    <View style={{ paddingLeft: width / 50 }}>
+                                                        {community == item.comm_id ?
+                                                            <Icon name='toggle-on' color={'green'} size={width / 15} /> :
+
+                                                            <Icon name='toggle-off' color={'gray'} size={width / 15} />
+                                                        }
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>
                                         </View>
-                                        <View style={{ paddingLeft: width / 50 }}>
-                                            {community == item.comm_id ?
-                                                <Icon name='toggle-on' color={'green'} size={width / 15} /> :
-
-                                                <Icon name='toggle-off' color={'gray'} size={width / 15} />
-                                            }
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            </>
-                        } style={{ margin: height / 20 }} />
-                    }
+                                    )
+                                }
+                            </View>
+                        }
+                    </View>
                 </View>
-            </View>
+            </ScrollView>
+        </Layout>
 
-            <View style={styles.bottom}>
-                <Footer active="people-group" />
-            </View>
-        </SafeAreaView>
     );
 }
 
@@ -315,7 +329,6 @@ const styles = StyleSheet.create({
     },
     post: {
         padding: width / 50,
-        height: height / 2
     },
 
     input: {

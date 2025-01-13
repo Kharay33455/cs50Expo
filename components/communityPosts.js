@@ -8,9 +8,9 @@ import IIcons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { useNavigation } from "@react-navigation/native";
 import FIcon from 'react-native-vector-icons/FontAwesome5'
-import { baseFontSize, bodyWidth } from "./layout";
 import * as ImagePicker from 'expo-image-picker';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import Layout, {bodyHeight, bodyWidth, baseFontSize} from "./layout";
 
 const { width, height } = Dimensions.get('screen');
 
@@ -574,21 +574,16 @@ export default function CPosts(props) {
 
             </View>
 
-
+<Layout>
+    <View style={{height:bodyHeight}}>
 
             {
                 isLoading ? <ActivityIndicator />
                     :
                     <>
-                        <View style={{ marginBottom: height / 5 }}>
+                        <View style={{height:bodyHeight}}>
 
-                            <SafeAreaView style={styles.safe}>
-                                <StatusBar barStyle="dark-content" />
-                                <View style={styles.top}>
-                                    <Top uri={data['user_pfp']} />
-
-                                </View>
-                            </SafeAreaView>
+            
                             <View style={styles.head}>
 
                                 <TouchableOpacity style={styles.active}>
@@ -639,13 +634,13 @@ export default function CPosts(props) {
                         </View>
                     </>
             }
-            <View style={styles.bottom}>
-                <Footer active="people-group" />
-            </View>
+    </View>
+</Layout>
+   
 
             {!isLoading && !data['notMember'] &&
                 <>
-                    <TouchableOpacity style={{ position: 'absolute', bottom: height / 5, width: width / 6, right: 0 }}
+                    <TouchableOpacity style={{ position: 'absolute', bottom: bodyHeight / 5, width: bodyWidth / 6, right: 0 }}
                         onPress={() => {
                             SetShowExitBox(true);
                         }}
@@ -695,7 +690,7 @@ export default function CPosts(props) {
 const styles = StyleSheet.create({
     head: {
         flexDirection: 'row',
-        justifyContent: 'space-around'
+        justifyContent: 'space-around',
     },
     bottom: {
         position: 'absolute',

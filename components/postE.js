@@ -5,6 +5,7 @@ import Top from './top';
 import { useEffect, useState } from 'react';
 import Post from './post';
 import Comment from './comment';
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
 
 const { width, height } = Dimensions.get('window');
 
@@ -54,17 +55,7 @@ export default function PostE(props) {
 
 
     return (
-
-        <SafeAreaView style={styles.container}>
-
-            <StatusBar style="auto" />
-            <SafeAreaView style={styles.safe}>
-                <StatusBar barStyle="dark-content" />
-                <View style={styles.top}>
-                    {isLoading ?
-                        <Top /> : <Top uri={data['user_pfp']} />}
-                </View>
-            </SafeAreaView>
+        <Layout>
             <View style={styles.post}>
                 {isLoading ? <ActivityIndicator /> :
                     <>
@@ -73,7 +64,7 @@ export default function PostE(props) {
                             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                                 <ScrollView>
 
-                                    {data['post']['isPrivate'] && <Text style={{textAlign:'center'}}>Post is private</Text>}
+                                    {data['post']['isPrivate'] && <Text style={{ textAlign: 'center' }}>Post is private</Text>}
                                     <Post opId={data['post']['op']} userId={data['user_id']} interact={true} communityIsPrivate={props.route.params['communityIsPrivate']} communityName={data['community_name'] ? data['community_name'] : props.route.params['communityName']} communityId={props.route.params['communityId']} isShared={data['post']['is_shared']} id={id} oppfp={data['post']['op_pfp']} post={data['post']['post']} display={data['post']['op_display_name']} op={data['post']['op_username']} media1={data['post']['media1']} likes={data['post']['likes']} frowns={data['post']['frowns']} ghost_likes={data['post']['ghost_likes']} comments={loadedComments ? commentCount : 0} shares={data['post']['shares']} allege={data['post']['allege']} />
                                     {data['post']['media2'] && <Image source={{ uri: data['post']['media2'] }} style={styles.image} />}
                                     {data['post']['media3'] && <Image source={{ uri: data['post']['media3'] }} style={styles.image} />}
@@ -105,10 +96,7 @@ export default function PostE(props) {
                     </>
                 }
             </View>
-            <View style={styles.bottom}>
-                <Footer active="" />
-            </View>
-        </SafeAreaView>
+        </Layout>
     );
 }
 
@@ -121,7 +109,7 @@ const styles = StyleSheet.create({
         paddingLeft: width / 50,
         paddingRight: width / 50,
         flexDirection: 'row',
-        paddingBottom: height / 5
+        height:bodyHeight,
     },
     bottom: {
         position: 'absolute',

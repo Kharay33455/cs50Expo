@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity, Text, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, View, TouchableOpacity, Text, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import Footer from './footer';
 import { useEffect, useRef, useState } from 'react';
 import Message from './message';
@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,7 +26,7 @@ export default function Messages(props) {
     const [image, setImage] = useState('');
     // ref to target message list
     const flatListRef = useRef();
-    
+
     const navigation = useNavigation();
 
     // Image pick
@@ -74,18 +74,18 @@ export default function Messages(props) {
     }, []);
 
     // ALways make sure chat scrolls to end after loading
-    useEffect(()=>{
-        if (flatListRef.current){
-            flatListRef.current.scrollToEnd({animated:true});
+    useEffect(() => {
+        if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
         }
     })
 
-// send new message. uri is image uri if any. It is stored in a dynamic variable image
+    // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
         const token = data['csrf']
 
         const form = new FormData();
-// image if aailable
+        // image if aailable
         if (image) {
             form.append('image', {
                 uri: uri,
@@ -100,7 +100,7 @@ export default function Messages(props) {
 
             // get response from server
             const response = await fetch('http://192.168.0.4:8000/chat/send-message',
-                
+
                 {
                     method: 'POST',
                     headers: {
@@ -124,7 +124,7 @@ export default function Messages(props) {
         }
     };
 
-
+// this screen uses it's own layout.
 
     return (
 
@@ -133,27 +133,27 @@ export default function Messages(props) {
             <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
                 <>
 
-                    <View style={{ flex: height / 10 }}>
+                    <View style={{ height: isTyping? height*0.4 :  Platform.OS === 'android' ? height * 0.82 : height * 0.8 }}>
                         <StatusBar style="auto" />
-                        <SafeAreaView style={styles.safe}>
+                        <View>
                             <StatusBar barStyle="dark-content" />
                             <View style={styles.top}>
-                                <TouchableOpacity onPress={()=>{
-                                    navigation.navigate('FProfile', {id : data['other_user_id']})
+                                <TouchableOpacity onPress={() => {
+                                    navigation.navigate('FProfile', { id: data['other_user_id'] })
                                 }}>
-                                <Image source={mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
+                                    <Image source={mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
                                 </TouchableOpacity>
                             </View>
                             <Text style={{ fontSize: width / 15, textAlign: 'center' }}>{mProps['displayName']}</Text>
 
-                        </SafeAreaView>
+                        </View>
 
                         <View style={styles.post}>
                             {loading ? <ActivityIndicator /> :
                                 <>
-                                    <View style={{ marginBottom: 2 * (height / 20) }}>
+                                    <View >
 
-                                        <FlatList ref={flatListRef} data={data['messages']} renderItem={({ item }) => <Message message={item} />} />
+                                        <FlatList ref={flatListRef} data={data['messages']} renderItem={({ item }) => <Message message={item} />} style = {{marginBottom : height/8}}/>
 
                                     </View>
 
@@ -165,23 +165,26 @@ export default function Messages(props) {
 
                     </View>
 
-                    <View style={{ flex: isTyping ? height / 10 : height / 80 }}>
+                    <View>
+                        <View style={{height: isTyping && height * 0.8 }}>
+                            <View style={{ flexDirection: 'row', position: 'relative', top: 0}}>
 
-                        <View style={{ flexDirection: 'row' }}>
-                            {image ?
-                                <TouchableOpacity onPress={() => {
-                                    pickImage();
-                                }}>
-                                    <Image source={{ uri: image }} style={{ width: height / 20, height: height / 20 }} />
-                                </TouchableOpacity>
-                                :
-                                <Icon name='image' size={width / 10} style={{ margin: 'auto' }} onPress={() => {
-                                    pickImage();
-                                }} />}
-                            <TextInput style={styles.input} onChangeText={setText} value={text} />
-                            <Icon name='send' size={width / 10} style={{ margin: 'auto' }} onPress={() => {
-                                sendMessage(image);
-                            }} />
+                                {image ?
+                                    <TouchableOpacity onPress={() => {
+                                        pickImage();
+                                    }}>
+                                        <Image source={{ uri: image }} style={{ width: height / 20, height: height / 20 }} />
+                                    </TouchableOpacity>
+                                    :
+                                    <Icon name='image' size={width / 10} style={{ margin: 'auto' }} onPress={() => {
+                                        pickImage();
+                                    }} />}
+                                <TextInput style={styles.input} onChangeText={setText} value={text} />
+                                <Icon name='send' size={width / 10} style={{ margin: 'auto' }} onPress={() => {
+                                    sendMessage(image);
+                                }} />
+
+                            </View>
                         </View>
 
                         <View style={styles.bottom}>
@@ -211,11 +214,12 @@ const styles = StyleSheet.create({
         padding: height / 50,
         backgroundColor: 'orange',
         width: width,
+        height: height * 0.15
     },
     input: {
         borderStyle: 'solid',
         borderColor: 'black',
-        height: height / 20,
+        height: height * 0.05,
         borderWidth: 1,
         width: width / 1.3,
     },
