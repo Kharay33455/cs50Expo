@@ -44,7 +44,7 @@ export default function App() {
         <Stack.Screen name= 'New Post' component = {NewPost} options={{headerShown : false}}/>
         <Stack.Screen name='Register' component={Register} options={{headerShown : false}}/>
         <Stack.Screen name='FProfile' component={FProfile} options={{headerShown:false}}/>
-        <Stack.Screen name='New Community' component={NewCommunity}/>
+        <Stack.Screen name='New Community' component={NewCommunity} options={{headerShown : false}}/>
         <Stack.Screen name='CMessages' component={CMessages} options={{headerShown : false}} />
     </Stack.Navigator>
     </NavigationContainer>
