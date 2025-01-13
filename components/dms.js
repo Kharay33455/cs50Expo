@@ -5,8 +5,8 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Top from './top';
 import { useEffect, useState, useCallback } from 'react';
 import Chat from './chat';
-
-
+import Layout, { bodyHeight } from './layout';
+import MSHead from './messaging/messaging';
 // Get dimensions for user phone screen
 const { width, height } = Dimensions.get('window');
 
@@ -41,7 +41,7 @@ export default function Dms() {
 
     // delete chat function
     const deletChat = async (_chatId) => {
-        
+
         const form = new FormData();
 
         form.append('chatId', _chatId);
@@ -51,25 +51,25 @@ export default function Dms() {
             const response = await fetch("http:192.168.0.4:8000/chat/delete-chat",
                 {
                     method: 'POST',
-                    headers:{
+                    headers: {
                         'Content-Type': 'multipart/form-data',
-                        'X-CSRFToken' : csrf
+                        'X-CSRFToken': csrf
                     },
-                    body : form
+                    body: form
                 }
             );
-            if (response.status === 204){
+            if (response.status === 204) {
                 console.log('deleted')
                 SetShowDelBox(false);
                 setChatId(null);
                 setName(null)
                 get_chats();
             }
-            
+
         } catch (error) {
             console.error(error)
         }
-        
+
     };
 
     // get all chats
@@ -100,14 +100,14 @@ export default function Dms() {
         return (
             <View style={{ width: width / 1.5, backgroundColor: 'orange', padding: width / 20, borderRadius: width / 25, borderTopLeftRadius: 0 }}>
                 <Text style={{ color: 'white', fontSize: height / 50 }}>
-                    Are you sure you want to delete your chat with {name}? This action cannot be undone. 
+                    Are you sure you want to delete your chat with {name}? This action cannot be undone.
                 </Text>
                 <Text style={{ color: 'red', fontSize: height / 60 }}>
-                Note: Chats are deleted for both users.
+                    Note: Chats are deleted for both users.
                 </Text>
                 <View style={{ flexDirection: 'row', width: width / 3, justifyContent: 'space-evenly', alignSelf: 'center' }}>
-                    <TouchableOpacity onPress={()=>{
-                        
+                    <TouchableOpacity onPress={() => {
+
                         deletChat(chatId);
                     }}>
                         <Text style={[{ backgroundColor: 'red' }, styles.button]}>
@@ -129,94 +129,64 @@ export default function Dms() {
 
 
     useFocusEffect(
-        useCallback(()=>{
+        useCallback(() => {
             get_chats();
         }, [])
     )
 
 
-
-
-
     return (
         <>
-            <SafeAreaView style={styles.container}
-            >
-                <StatusBar style="auto" />
-                <SafeAreaView style={styles.safe}>
-                    <StatusBar barStyle="dark-content" />
-                    <View style={styles.top} >
-                        {isLoading ?
-                            <Top /> : <Top uri={data['pfp']} />}
-                    </View>
-                </SafeAreaView>
-                <View style={styles.head}>
+            <Layout>
+                <View style={{ height: bodyHeight }}>
 
-                    <TouchableOpacity style={styles.active} onPress={() => { navigation.navigate('Dms') }}>
-                        <Text>
-                            Private Chats
-                        </Text>
-                    </TouchableOpacity>
+                    <MSHead active = 'DMS'/>
+                    <View>
+                        {isLoading ? <ActivityIndicator /> :
+                            <FlatList data={data['chats']} renderItem={({ item }) =>
+                                <View
 
-                    <TouchableOpacity onPress={() => { navigation.navigate('Cms') }}>
-                        <Text>
-                            Community Chats
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                                    style={{ marginLeft: chatId === item['chat']['id'] ? -swipeValue : 0 }}
+                                    onTouchStart={(e) => {
+                                        setChatId(item['chat']['id'])
+                                        setName(item['other_user']['display_name'])
+                                        setStart([e.nativeEvent['pageX'], e.nativeEvent['pageY']]);
+                                    }}
 
-                <View>
-                    {isLoading ? <ActivityIndicator /> :
-                        <FlatList data={data['chats']} renderItem={({ item }) =>
-                            <View
+                                    onTouchMove={(e) => {
+                                        setEnd([e.nativeEvent['pageX'], e.nativeEvent['pageY']]);
+                                        setSwipeValue(start[0] - end[0]);
+                                    }}
 
-                                style={{ marginLeft: chatId === item['chat']['id'] ? -swipeValue : 0 }}
-                                onTouchStart={(e) => {
-                                    setChatId(item['chat']['id'])
-                                    setName(item['other_user']['display_name'])
-                                    setStart([e.nativeEvent['pageX'], e.nativeEvent['pageY']]);
-                                }}
+                                    onTouchEnd={(e) => {
 
-                                onTouchMove={(e) => {
-                                    setEnd([e.nativeEvent['pageX'], e.nativeEvent['pageY']]);
-                                    setSwipeValue(start[0] - end[0]);
-                                }}
+                                        const navigateToChat = () => {
+                                            setRead(read => [...read, item['chat']['id']]); navigation.navigate('Messages', { id: item['chat']['id'], displayName: item['other_user']['display_name'], oppfp: item['other_user']['pfp'] })
 
-                                onTouchEnd={(e) => {
+                                        }
 
-                                    const navigateToChat = ()=>{
-                                        setRead(read => [...read, item['chat']['id']]); navigation.navigate('Messages', { id: item['chat']['id'], displayName: item['other_user']['display_name'], oppfp: item['other_user']['pfp'] })        
-
-                                    }
-
-                                    const handleSwipe = ()=>{
-                                        swipeValue > width / 3  ? SetShowDelBox(true)
-                                        :
-                                        navigateToChat();
-                                    };
-                                    handleSwipe();
-                                    setSwipeValue([0,0])
-                                }}
+                                        const handleSwipe = () => {
+                                            swipeValue > width / 3 ? SetShowDelBox(true)
+                                                :
+                                                navigateToChat();
+                                        };
+                                        handleSwipe();
+                                        setSwipeValue([0, 0])
+                                    }}
 
 
-                            >
-                                <TouchableOpacity>
-                                    <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
-                                </TouchableOpacity>
-                            </View>
+                                >
+                                    <TouchableOpacity>
+                                        <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
+                                    </TouchableOpacity>
+                                </View>
+                            }
+                            />
                         }
-                        />
-                    }
 
+                    </View>
                 </View>
-
-
-
-                <View style={styles.bottom}>
-                    {isLoading ? <ActivityIndicator /> : <Footer active="message" />}
-
-                </View>
-            </SafeAreaView>
+            </Layout>
 
             {
                 // Delete confirmation
@@ -229,25 +199,7 @@ export default function Dms() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    bottom: {
-        position: 'absolute',
-        bottom: 0,
-        padding: height / 50,
-        backgroundColor: 'orange',
-        width: width
-    },
-    head: {
-        flexDirection: 'row',
-        justifyContent: 'space-around'
-    },
-    active: {
-        borderBottomWidth: height / 200,
-        borderBottomColor: 'orange'
-    },
+   
     deletChat: {
         position: 'absolute',
         flex: 1,

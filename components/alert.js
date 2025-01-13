@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Top from './top';
 import { useEffect, useState } from 'react';
 import Notification from './notification';
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,8 +22,8 @@ export default function Alert() {
             const result = await response.json();
             setData(result);
             setIsLoading(false);
-            if (response.status ===301){
-                navigation.navigate('Login', {err:result['err'], from : 'Alert'})
+            if (response.status === 301) {
+                navigation.navigate('Login', { err: result['err'], from: 'Alert' })
             }
         } catch (error) {
             console.error(error)
@@ -34,34 +35,29 @@ export default function Alert() {
     }, []);
     const navigation = useNavigation();
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar style="auto" />
-            <View style={styles.top}>
-                    { isLoading?
-                    <Top /> : <Top uri = {data['pfp']}/>}
-            </View>
-            <View style={styles.head}>
-                <TouchableOpacity style={styles.active} onPress={() => { navigation.navigate('Alert') }}>
-                    <Text>
-                        Notifications
-                    </Text>
-                </TouchableOpacity>
-            </View>
-            {
-                // Display alerts in list
-            }
+        <Layout>
+                <View style={{height:bodyHeight}}>
+                <View style={styles.head}>
+                    <TouchableOpacity style={styles.active} onPress={() => { navigation.navigate('Alert') }}>
+                        <Text>
+                            Notifications
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                {
+                    // Display alerts in list
+                }
                 {
                     isLoading ?
-                    <ActivityIndicator/>:
-                    <View style={{paddingBottom: height/8, paddingTop:height/50}}>
-                    <FlatList data={data['notif']} renderItem={({item})=> <Notification isSeen = {item['is_seen']} postId = {item['post_id']} post = {item['post']} userId = {item['user_id']} message={item['message']} pfp = {item['oppfp']} type={item['type']} displayName = {item['user']}/>} />
-                    </View>
-                    
+                        <ActivityIndicator /> :
+                        <View>
+                            <FlatList data={data['notif']} renderItem={({ item }) => <Notification isSeen={item['is_seen']} postId={item['post_id']} post={item['post']} userId={item['user_id']} message={item['message']} pfp={item['oppfp']} type={item['type']} displayName={item['user']} />} />
+                        </View>
+
                 }
-            <View style={styles.bottom}>
-                <Footer active="notifications" />
-            </View>
-        </SafeAreaView>
+                </View>
+
+        </Layout>
     );
 }
 

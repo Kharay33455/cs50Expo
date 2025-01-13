@@ -15,3 +15,4 @@
 . Notify of their ban lift(done)
 . Display post by how close users are to viewer if you have their location
 . Refactor code to use layout component where useful
+. create fan, obssess and stalk functionality
