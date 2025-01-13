@@ -1,9 +1,9 @@
 // all imports
-import { Dimensions, StyleSheet, Text, View,  TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 // Layout and dimensioning
-import Layout, { bodyHeight , baseFontSize, bodyWidth} from './layout';
+import Layout, { bodyHeight, baseFontSize, bodyWidth } from './layout';
 import FIcon from 'react-native-vector-icons/FontAwesome'
 // Custom component. The head bar to navigate between community chat and private chat
 import MSHead from './messaging/messaging';
@@ -11,7 +11,7 @@ import MSHead from './messaging/messaging';
 // origin of all fonts. All font sizes are mathematical functions of this number. Change this to change all font size
 
 // profile image size. height, width, border radius
-const imageSize = baseFontSize *10;
+const imageSize = baseFontSize * 10;
 
 // A single community chat object
 const SingleCommunityChat = (props) => {
@@ -19,34 +19,45 @@ const SingleCommunityChat = (props) => {
     const navigation = useNavigation();
 
     return (
-        <View>
-            {
-                // show community pfp and nme size by side
-            }
-            <TouchableOpacity onPress={()=>{
-                navigation.navigate('CMessages', {commId :props.commId});
-            }}>
-                <View style={{ flexDirection: 'row', marginBottom: bodyHeight / 50 }}>
-                    <Image source={ props.communityPfp ? {uri : props.communityPfp} : require('../images/group.png')} style={styles.image} />
-                    {
-                        // give small spacing between text border
-                        // set community name display font size to base font size divided by 1.5
-                    }
-                    <View style={{ flexDirection: 'column', padding: bodyWidth / 50 }}>
-                        <Text style={{ fontSize: baseFontSize *3, fontWeight: '900' }}>
-                            {props.name}
-                        </Text>
-                        <Text>
-                            {props.lastText ===  'Photo' ? 
-                            
-                            <FIcon name='image' size={baseFontSize *5} color={'orange'}/>
+        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between' }} onPress = {()=>{
+            navigation.navigate('CMessages', { commId: props.commId });
 
-                            : props.lastText}
-                        </Text>
+        }}>
+            <View>
+                {
+                    // show community pfp and nme size by side
+                }
+                <TouchableOpacity onPress={() => {
+                    navigation.navigate('CMessages', { commId: props.commId });
+                }}>
+                    <View style={{ flexDirection: 'row', marginBottom: bodyHeight / 50 }}>
+                        <Image source={props.communityPfp ? { uri: props.communityPfp } : require('../images/group.png')} style={styles.image} />
+                        {
+                            // give small spacing between text border
+                            // set community name display font size to base font size divided by 1.5
+                        }
+                        <View style={{ flexDirection: 'column', padding: bodyWidth / 50 }}>
+                            <Text style={{ fontSize: baseFontSize * 3, fontWeight: '900' }}>
+                                {props.name}
+                            </Text>
+                            <Text>
+                                {props.lastText === 'Photo' ?
+
+                                    <FIcon name='image' size={baseFontSize * 5} color={'orange'} />
+
+                                    : props.lastText}
+                            </Text>
+                        </View>
                     </View>
-                </View>
-            </TouchableOpacity>
-        </View>
+                </TouchableOpacity>
+            </View>
+
+            <View>
+                <Text style={{ color: 'gray', fontSize: baseFontSize * 3 }}>
+                    {props.item.time}
+                </Text>
+            </View>
+        </TouchableOpacity>
     )
 }
 
@@ -60,6 +71,7 @@ const CommunityChat = () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/community-chat');
             const result = await response.json()
+            console.log(result)
             setCCL(result['comm_list']);
             setLoading(false);
         } catch (error) {
@@ -68,18 +80,19 @@ const CommunityChat = () => {
     }
 
     useFocusEffect(
-        useCallback(()=>{
+        useCallback(() => {
             getChatList();
         }, [])
     )
 
 
     return (
+        <View style={{height:bodyHeight}}>
         <>
             {loading ? <ActivityIndicator /> :
                 <>
-<MSHead active='CMS'/>
-                
+                    <MSHead active='CMS' />
+
                     {
                         // Entire body section. Paadding on left and right for styling
                     }
@@ -97,23 +110,26 @@ const CommunityChat = () => {
                                 // list of communities
                             }
                             <View>
-                                
-                                <FlatList data={communityChatList} renderItem={({ item }) => <SingleCommunityChat name={item['community_name']} commId = {item['community_id']} lastText = {item['community_last_text']} communityPfp = {item['community_pfp']} />} />
+
+                                <FlatList data={communityChatList} renderItem={({ item }) => <SingleCommunityChat name={item['community_name']} commId={item['community_id']} lastText={item['community_last_text']} communityPfp={item['community_pfp']} item={item} />} />
                             </View>
                         </View>
                     </View>
                 </>
             }
         </>
+        </View>
     )
 }
 
 export default function Cms() {
     const navigation = useNavigation();
-    
+
     return (
         <Layout>
+            <View style={{ height: bodyHeight }}>
                 <CommunityChat />
+            </View>
         </Layout>
 
     );

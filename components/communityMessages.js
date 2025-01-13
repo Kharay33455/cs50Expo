@@ -1,16 +1,25 @@
+// default imports
 import { useEffect, useRef, useState } from "react";
+// layout and dimension sizing
 import Layout, { bodyHeight, baseFontSize, bodyWidth } from "./layout";
-import {Keyboard, Image, Dimensions, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
+// default components
+import { Keyboard, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView } from "react-native";
+// font awesome icons
 import FIcon from 'react-native-vector-icons/FontAwesome';
+// image picker
 import * as ImagePicker from 'expo-image-picker';
 
-const { width, height } = Dimensions.get('window');
+// dimensioning
+const width = bodyWidth
+const height = bodyHeight
 
+// default functions
 export default function CMessages(props) {
+    // extra params passed to fucntion or empty if none exists. It should contain the ID of the community
     const params = props.route.params || {};
-
+    // Red to target the scroll view that holds messages
     const messageListRef = useRef();
-
+    // Message to send
     const [text, setText] = useState('');
 
     // chat messages
@@ -51,10 +60,10 @@ export default function CMessages(props) {
                 // wait a second to allow component render before attempting scroll to last message
                 setTimeout(() => {
                     try {
-                         messageListRef.current.scrollToOffset({ offset: 9000000000000000, animated: true });
+                        messageListRef.current.scrollToEnd({ animated: true });
 
                     } catch (error) {
-                        if (!error instanceof TypeError){
+                        if (!error instanceof TypeError) {
                             console.error(error);
                         }
                     }
@@ -65,6 +74,7 @@ export default function CMessages(props) {
             console.error(error);
         }
     }
+
 
     useEffect(() => {
         getAllCommMessages();
@@ -97,19 +107,20 @@ export default function CMessages(props) {
                     body: form
                 }
             );
-            const result = await response.json()
-            // load new messages
-            setMessages(result);
-            console.log(result);
-            setTimeout(() => {
-                try {
-                    result['msg_list'] > 0 &&
-                    messageListRef.current.scrollToEnd({ animated: true });
 
-                } catch (error) {
-                    console.error(error)
-                }
-            }, 1000);
+            if (response.status === 200) {
+                const result = await response.json()
+                // load new messages
+                setMessages(result);
+                setTimeout(() => {
+                    try {
+                        messageListRef.current.scrollToEnd({ animated: true });
+
+                    } catch (error) {
+                        console.error(error)
+                    }
+                }, 1000);
+            }
 
 
         } catch (error) {
@@ -117,12 +128,18 @@ export default function CMessages(props) {
         }
     };
 
-    useEffect(()=>{
-        const showKeyboard = Keyboard.addListener('keyboardWillShow', ()=> {SetIsTyping(true)});
-        const hideKeyboard = Keyboard.addListener('keyboardWillHide', ()=> {SetIsTyping(false)});
+    useEffect(() => {
+        const showKeyboard = Keyboard.addListener('keyboardWillShow', () => {
+            SetIsTyping(true);
+            setTimeout(() => {
+                messageListRef.current.scrollToEnd({ animated: true })
+            });
+
+        }, 1000)
+        const hideKeyboard = Keyboard.addListener('keyboardWillHide', () => { SetIsTyping(false) });
 
         // remove hooks
-        return ()=>{
+        return () => {
             showKeyboard.remove();
             hideKeyboard.remove();
         }
@@ -133,78 +150,107 @@ export default function CMessages(props) {
 
     return (
         <Layout>
-            {isLoading ? <ActivityIndicator /> :
-                <View style={{ height: bodyHeight * 0.93 }}>
-                    <View>
-                        <Text style={{ textAlign: 'center', fontWeight: '900', fontSize: baseFontSize * 5 }}>
+            <View style={{ height: bodyHeight }}>
+                <View style={{ height: bodyHeight }}>
+                    <View style={{height: isLoading && bodyHeight}}>
+                    {isLoading ?
 
-                            {messages['community_details']['community_name']}
+                        <View style={{height:bodyHeight}}>
+                            <ActivityIndicator/>
+                        </View> :
 
-                        </Text>
-                    </View>
-                    {messages['msg_list'].length < 1 ? <Text style={{textAlign:'center', fontSize:baseFontSize * 5, fontWeight:'500'}}>No messages available. Send the first!</Text> :
+                        <View style={{ height: isTyping ? bodyHeight / 2 : bodyHeight * 0.93 }}>
+                            {
+                                // While typing reduce size of component
+                            }
+                            <View>
+                                <Text style={{ textAlign: 'center', fontWeight: '900', fontSize: baseFontSize * 5 }}>
 
-                        <FlatList ref={messageListRef} data={messages['msg_list']} renderItem={({ item }) =>
+                                    {messages['community_details']['community_name']}
 
-                            <>
-                                <View style={{ padding: bodyHeight / 50, backgroundColor: item['same'] ? 'orange' : 'blue', width: bodyWidth / 2, alignSelf: item['same'] ? 'flex-end' : 'flex-start', margin: bodyHeight / 100, borderRadius: bodyHeight / 50, borderTopLeftRadius: item['same'] && 0, borderTopRightRadius: !item['same'] && 0 }}>
-                                    <Text style={{ color: 'white', fontWeight: '900', fontSize: baseFontSize * 4 }}>
-                                        {item['sender']}
-                                    </Text>
+                                </Text>
+                            </View>
+                            {
+                                // make sure message usbt ab empty list
+                            }
+                            {messages['msg_list'].length < 1 ? <Text style={{ textAlign: 'center', fontSize: baseFontSize * 5, fontWeight: '500' }}>No messages available. Send the first!</Text> :
+
+                                <ScrollView style={{ height: bodyHeight / 2 }} ref={messageListRef}>
+
                                     {
-                                        item['media'] !== null && <Image source={{ uri: item['media'] }} style={{ width: bodyWidth / 2.5, height: bodyWidth / 2.5 }} />
+                                        messages['msg_list'].map((item) =>
+                                            <View key={item['id']}>
+                                            <>
+                                                <View style={{ flexDirection: item['same'] ? 'row-reverse' : 'row', width: bodyWidth * 0.7, alignSelf: item['same'] ? 'flex-end' : 'flex-start' }}>
+
+                                                    <View>
+                                                        <Image source={item['sender_pfp'] !== 'None' ? { uri: item['sender_pfp'] } : require('../images/placeholder-male.jpg')} style={{ borderRadius: bodyWidth / 10, width: bodyWidth / 10, height: bodyWidth / 10 }} />
+                                                    </View>
+
+
+                                                    <View key={item['id']} style={{ padding: bodyHeight / 50, backgroundColor: item['same'] ? 'orange' : 'blue', width: bodyWidth / 2, alignSelf: item['same'] ? 'flex-end' : 'flex-start', margin: bodyHeight / 100, borderRadius: bodyHeight / 50, borderTopLeftRadius: item['same'] && 0, borderTopRightRadius: !item['same'] && 0 }}>
+                                                        <Text style={{ color: 'white', fontWeight: '900', fontSize: baseFontSize * 4 }}>
+                                                            {item['sender']}
+                                                        </Text>
+                                                        {
+                                                            item['media'] !== null && <Image source={{ uri: item['media'] }} style={{ width: bodyWidth / 2.5, height: bodyWidth / 2.5 }} />
+                                                        }
+
+
+
+                                                        <Text style={{ color: 'white', fontSize: baseFontSize * 3, fontWeight: '700' }}>
+                                                            {item['message']}
+                                                        </Text>
+                                                        <Text style={{ color: 'gray', fontSize: baseFontSize * 2.5, marginLeft: bodyWidth / 3.5, fontWeight: '500' }}>
+                                                            {item['time_sent']}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                            </>
+                                            </View>
+                                        )
                                     }
 
+                                </ScrollView>
 
+                            }
 
-                                    <Text style={{ color: 'white', fontSize: baseFontSize * 3, fontWeight: '700' }}>
-                                        {item['message']}
-                                    </Text>
-                                    <Text style={{ color: 'gray', fontSize: baseFontSize * 2.5, marginLeft: bodyWidth / 3.5, fontWeight: '500' }}>
-                                        {item['time_sent']}
-                                    </Text>
-                                </View>
-
-                            </>
-                        }
-
-                            keyExtractor={(item) => item['id'].toString()}
-                        />
+                        </View>
                     }
-
-                </View>
-            }
-            {
-                // Text input field
-            }
-            <View style={ isTyping ? [styles.textInput, styles.textInputTyping] : styles.textInput}>
-                <View style={{ flexDirection: 'row' }}>
-                    <TouchableOpacity style={{ width: bodyWidth * 0.1 }}
-                        onPress={() => {
-                            pickImage();
-                        }}
-                    >
-                        {image ? <Image source={{ uri: image }} style={{ width: bodyWidth / 15, height: bodyWidth / 15 }} /> :
-                            <FIcon name="image" size={baseFontSize * 5} color={'blue'} style={styles.icon} />
-                        }
-                    </TouchableOpacity>
-                    <View style={{ width: bodyWidth * 0.8 }}>
-                        <TextInput style={{ borderWidth: 1, height: bodyHeight * 0.05, fontWeight:'900' }} value={text} onChangeText={setText} multiline={true} />
                     </View>
                     {
-                        // send button
+                        // Text input field
                     }
-                    <TouchableOpacity style={{ width: bodyWidth * 0.1 }}
-                        onPress={() => {
-                            console.log(text);
-                            sendNewMessages();
-                        }}
-                    >
-                        <FIcon name="send" size={baseFontSize * 5} color={'blue'} style={styles.icon} />
-                    </TouchableOpacity>
+                    <View style={ isLoading ? {display:'none'} :  styles.textInput}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <TouchableOpacity style={{ width: bodyWidth * 0.1 }}
+                                onPress={() => {
+                                    pickImage();
+                                }}
+                            >
+                                {image ? <Image source={{ uri: image }} style={{ width: bodyWidth / 15, height: bodyWidth / 15 }} /> :
+                                    <FIcon name="image" size={baseFontSize * 5} color={'blue'} style={styles.icon} />
+                                }
+                            </TouchableOpacity>
+                            <View style={{ width: bodyWidth * 0.8 }}>
+                                <TextInput style={{ borderWidth: 1, height: bodyHeight * 0.05, fontWeight: '900' }} value={text} onChangeText={setText} multiline={true} />
+                            </View>
+                            {
+                                // send button
+                            }
+                            <TouchableOpacity style={{ width: bodyWidth * 0.1 }}
+                                onPress={() => {
+                                    console.log(text);
+                                    sendNewMessages();
+                                }}
+                            >
+                                <FIcon name="send" size={baseFontSize * 5} color={'blue'} style={styles.icon} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
             </View>
-
         </Layout>
     )
 }
@@ -214,11 +260,11 @@ const styles = StyleSheet.create({
     {
         textAlign: 'center', margin: 'auto'
     },
-    textInput:{
-        height: bodyHeight * 0.07, width: bodyWidth, padding: height / 100, backgroundColor :'white'
+    textInput: {
+        height: bodyHeight * 0.07, width: bodyWidth, padding: height / 100, backgroundColor: 'white'
     },
-    textInputTyping:{
-        position:'absolute', top:bodyHeight/2
+    textInputTyping: {
+        position: 'absolute', top: bodyHeight / 2
     }
-    
+
 })

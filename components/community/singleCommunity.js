@@ -15,8 +15,6 @@ export default function SCommunity(props) {
     //error message
     const [err, SetErr] = useState('');
 
-
-
     useEffect(() => {
         if (props.requested == true) {
 
