@@ -2,10 +2,10 @@
 import { StyleSheet, View, Image, ActivityIndicator, Text, TouchableOpacity, FlatList, TextInput, ScrollView } from 'react-native';
 
 // manage state and force rendering upon state update
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // navigation from screen to screen
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 // custom component Post to define how a single post is displayed.
 import Post from './post';
@@ -111,6 +111,7 @@ export default function Profile() {
         catch (error) {
             console.error(error)
         } finally {
+
             // when all data is loading, allow rendering 
             setIsloading(false);
         }
@@ -182,9 +183,12 @@ export default function Profile() {
         setNewDN(newDN.slice(0, 30))
     }
 
-    useEffect(() => {
-        get_details();
-    }, [])
+    useFocusEffect(
+        useCallback(()=>{
+            get_details();
+        }, [])
+    )
+
 
 
     return (
@@ -308,13 +312,22 @@ export default function Profile() {
                             {
                                 // display all posts in a list where you render each post as Post component(custom component)
                             }
-                            <View>
-                                {
-                                    data['post'].map((item) =>
-                                        <Post opId={item['op']} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={item['op_pfp']} post={item['post']} display={item['op_display_name']} op={item['op_user_name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
-                                    )
-                                }
-                            </View>
+                            {
+                                data['post'] !== undefined &&
+
+                                <View>
+                                    {
+                                        data['post'].map((item) =>
+                                            <View key={item['post_id']}>
+
+                                                <Post opId={item['op']} communityIsPrivate={item['community_is_private']} communnityId={item['community']} communityName={item['community_name']} isShared={item['is_shared']} allege={item['allege']} comments={item['comment_count']} id={item['post_id']} oppfp={item['op_pfp']} post={item['post']} display={item['op_display_name']} op={item['op_user_name']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} shares={item['shares']} />
+
+                                            </View>
+                                        )
+                                    }
+                                </View>
+                            }
+
                         </View>
                     </>
                 }

@@ -14,7 +14,7 @@ export default function Pfp(props){
     const navigation = useNavigation();
     return (
         <TouchableOpacity onPress={()=>{navigation.navigate("Profile")}}>
-        <Image source={props.uri !== "None" ? {uri : props.uri} : require('../images/placeholder-male.jpg')} style={styles.image}/>  
+        <Image source={props.uri !== null ? {uri : props.uri} : require('../images/placeholder-male.jpg')} style={styles.image}/>  
         </TouchableOpacity>
     )
 }

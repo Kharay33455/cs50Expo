@@ -1,28 +1,32 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, TextInput, Text, View, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
-import Footer from './footer';
-import Top from './top';
+// system imports
+import { Dimensions, StyleSheet, TextInput, Text, View, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+
+// manag state and rerender on state update
 import { useEffect, useState } from 'react';
+
+// navigate
 import { useNavigation } from '@react-navigation/native';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
-const { width, height } = Dimensions.get('window');
-
-
+// layout and dimensioning
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
 
 export default function Login(props) {
+    // navigate
     const navigation = useNavigation();
+    // params sent to login
     const params = props.route.params || {};
+    // err from screen that forwarded user to login
     const err = params['err'];
+    // from is the screen it came from. ALlows to navigate back to screen after login
     const from = params['from'] || "Profile";
 
-
-
+    // form details
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    // csrf needed to login
     const [csrf, setCsrf] = useState('');
 
+    // login function. Submin username and password to server, navigate to profile with details returned if succesful else alert user of login error
     const login = async () => {
         console.log(csrf)
         try {
@@ -39,6 +43,7 @@ export default function Login(props) {
                     })
                 }
             )
+            // handle unsuccesful logins
             if (response.status === 400) {
                 navigation.navigate('Login', { err: 'Bad request', from: from })
             }
@@ -74,105 +79,72 @@ export default function Login(props) {
 
 
     return (
-        <>
-            <SafeAreaView style={styles.safe}>
-                <StatusBar barStyle="dark-content" />
-                <View style={styles.top}>
-                    <Top />
+
+        <Layout>
+            <KeyboardAvoidingView enabled={true} behavior={Platform.OS === 'ios' ? 'position' : 'height'} style={{ height: bodyHeight, width: bodyWidth, alignSelf: 'center', alignItems: 'center' }}>
+
+                <View style={styles.login}>
+                    {err && <Text style={{ color: 'red' }}>{err}</Text>}
+
+                    <Text style={styles.emp}>USERNAME:</Text>
+                    <TextInput style={styles.input} onChangeText={setUsername} value={username} />
+
+                    <Text style={styles.emp}>PASSWORD:</Text>
+                    <TextInput style={styles.input} onChangeText={setPassword} value={password} />
+
+                    <TouchableOpacity onPress={() => { login() }}>
+                        <View style={styles.emp}>
+                            <Text style={styles.logButton}>
+                                Log in
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    {
+                        // go to registration screen 
+                    }
+                    <Text>
+                        Don't have an account? <Text style={{ color: 'orange' }} onPress={() => { navigation.navigate('Register') }}>Register with us.</Text>
+                    </Text>
+
+
                 </View>
-            </SafeAreaView>
-            <SafeAreaView style={styles.container}>
-
-                <StatusBar style="auto" />
-                <KeyboardAvoidingView enabled={true} behavior={Platform.OS === 'ios' ? 'position' : 'height'}>
-
-                    <View style={styles.login}>
-                        {err && <Text style={{ color: 'red' }}>{err}</Text>}
-
-                        <Text style={styles.emp}>USERNAME:</Text>
-                        <TextInput style={styles.input} onChangeText={setUsername} value={username} />
-
-                        <Text style={styles.emp}>PASSWORD:</Text>
-                        <TextInput style={styles.input} onChangeText={setPassword} value={password} />
-
-                        <TouchableOpacity onPress={() => { login() }}>
-                            <View style={styles.emp}>
-                                <Text style={styles.logButton}>
-                                    Log in
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-
-                        {
-                            // go to registration screen 
-                        }
-                        <Text>
-                            Don't have an account? <Text style={{ color: 'orange' }} onPress={() => { navigation.navigate('Register') }}>Register with us.</Text>
-                        </Text>
-
-
-                    </View>
-                </KeyboardAvoidingView>
-
-                <View style={styles.bottom}>
-                    {from === 'MyCommunity'?<Footer active="people-group"/>:from ==='Alert' ?<Footer active='notifications'/> : from === 'Dms'?<Footer active='message'/>: <Footer active="globe-africa"/> }
-                    {//from === 'Profile'&&<Footer active="globe-africa"/>
-                        }
-                    {//from ==='Alert' &&<Footer active='notifications'/>
-                        }
-                    {//from === 'Dms'&&<Footer active='message'/>
-                        }
-                </View>
-            </SafeAreaView>
-        </>
+            </KeyboardAvoidingView>
+        </Layout>
 
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
     login:
     {
-        display: 'flex',
         alignItems: 'center',
         alignContent: 'center',
         justifyContent: 'center',
-        height: height / 1.1,
-        width: width / 1.5
-    },
-    bottom: {
-        position: 'absolute',
-        bottom: 0,
-        padding: height / 50,
-        backgroundColor: 'orange',
-        width: width
+        height: bodyHeight * 0.9,
+        width: bodyWidth * 0.8
     },
     input: {
         borderStyle: 'solid',
         borderColor: 'black',
-        height: height / 20,
+        height: bodyHeight / 20,
         borderWidth: 1,
-        width: width / 1.2
+        width: bodyWidth / 1.2
     },
     emp: {
-        fontSize: width / 20,
+        fontSize: bodyWidth / 20,
         fontWeight: '900',
-        margin: width / 100
+        margin: bodyWidth / 100,
     },
     logButton: {
-        fontSize: width / 30,
+        fontSize: bodyWidth / 30,
         fontWeight: '900',
         backgroundColor: 'orange',
         color: 'white',
-        padding: width / 50,
-        paddingLeft: width / 4,
-        paddingRight: width / 4,
-        borderRadius: width / 10
+        padding: bodyWidth / 50,
+        paddingLeft: bodyWidth / 4,
+        paddingRight: bodyWidth / 4,
+        borderRadius: bodyWidth / 10
     },
 
 });

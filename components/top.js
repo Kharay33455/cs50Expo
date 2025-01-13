@@ -30,6 +30,7 @@ export default function Top(props) {
                 const result = await resp.json();
                 setPfp(result['pfp'])
             }
+        
         } catch (error) {
             console.error(error);
         }
