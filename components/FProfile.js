@@ -26,7 +26,7 @@ export default function FProfile(props) {
     const [fans, setFans] = useState("0");
     const [obsessions, setObsessions] = useState("0");
     const [stalkers, setStalkers] = useState("0");
-    const [relationship, setRelationship] = useState("0");
+    const [relationship, setRelationship] = useState("ST");
 
     const [displayName, setDisplayName] = useState('');
 
@@ -96,7 +96,13 @@ export default function FProfile(props) {
                     body : form
                 }
             );
-            console.log(resp.status)
+            if(resp.status === 200){
+                const result = await resp.json();
+                setRelationship(result['relationship'])
+                setFans(result['fans']);
+                setObsessions(result['obsessions'])
+                setStalkers(result['stalkers']);
+            }
         } catch (error) {
             console.error(error);
         }
