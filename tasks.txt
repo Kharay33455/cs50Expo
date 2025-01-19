@@ -16,3 +16,4 @@
 . Display post by how close users are to viewer if you have their location
 . Refactor code to use layout component where useful (done)
 . create fan, obssess and stalk functionality
+. footer to show correct icon in green

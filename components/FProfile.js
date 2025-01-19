@@ -5,6 +5,7 @@ import Post from './post';
 import Icon from 'react-native-vector-icons/Foundation';
 import { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,8 +22,13 @@ export default function FProfile(props) {
     const parameters = props.route.params || {};
     const userId = parameters['id'];
 
-    const [displayName, setDisplayName] = useState('');
+    // take fans, obsessions, stalkers and relationship as states
+    const [fans, setFans] = useState("0");
+    const [obsessions, setObsessions] = useState("0");
+    const [stalkers, setStalkers] = useState("0");
+    const [relationship, setRelationship] = useState("0");
 
+    const [displayName, setDisplayName] = useState('');
 
 
     const get_details = async (userID) => {
@@ -43,6 +49,11 @@ export default function FProfile(props) {
             setBio(data['bio']);
             setDisplayName(data['display_name']);
             data['pfp'] && setImage(data['pfp']);
+            console.log(data);
+            setFans(data['fans']);
+            setObsessions(data['obsessions']);
+            setStalkers(data['stalkers']);
+            setRelationship(data['relationship']);
         }
         catch (error) {
             console.error(error)
@@ -70,6 +81,27 @@ export default function FProfile(props) {
         }
     };
 
+    const getRelationship = async() =>{
+        const csrf = data['csrf']
+        const form = new FormData();
+        form.append('userId', data['user']);
+        try {
+            const resp = await fetch('http://192.168.0.4:8000/api-person/get-relationship',
+                {
+                    method : 'POST',
+                    headers : {
+                        'Content-Type' : 'multipart/form-data',
+                        'X-CSRFToken' : csrf
+                    },
+                    body : form
+                }
+            );
+            console.log(resp.status)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
 
 
     return (
@@ -89,6 +121,7 @@ export default function FProfile(props) {
                                             {bio}
                                         </Text>
 
+
                                     </View>
                                     <View style={{ marginLeft: width / 20 }}>
 
@@ -101,6 +134,19 @@ export default function FProfile(props) {
                                                 <Text style={{ fontWeight: 500, fontSize: width / 25 }}>
                                                     @{data['name']}
                                                 </Text>
+
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: width / 5 }}>
+                                                  {
+                                                    // follow publicly and stalk privately icons
+                                                    // both icons hold their icon size individually, to change, change each
+                                                  }
+                                                    <TouchableOpacity onPress={()=>{
+                                                        getRelationship();
+                                                    }}>
+
+                                                        <MaterialCommunityIcons name={ relationship === 'FO' ? 'account-check' : 'account-check-outline'} size={iconSize * 1.5} color={'green'}/>
+                                                    </TouchableOpacity>
+                                                </View>
                                             </View>
 
                                             <View style={{ marginLeft: width / 20 }}>
@@ -115,9 +161,9 @@ export default function FProfile(props) {
                                     </View>
 
                                     <View style={[styles.post, { justifyContent: 'space-around', paddingTop: width / 20 }]}>
-                                        <Text style={styles.fontSizing}>23 Fans</Text>
-                                        <Text style={styles.fontSizing}>9 Obsessions</Text>
-                                        <Text style={styles.fontSizing}>10 Stalkers</Text>
+                                        <Text style={styles.fontSizing}>{fans} Fans</Text>
+                                        <Text style={styles.fontSizing}>{obsessions} Obsessions</Text>
+                                        <Text style={styles.fontSizing}>{stalkers} Lurkers</Text>
                                     </View>
                                     <View>
                                         <Text style={styles.posts}>Posts</Text>
