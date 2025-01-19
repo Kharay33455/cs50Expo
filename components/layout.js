@@ -3,8 +3,9 @@ import { Dimensions, StyleSheet, View, StatusBar, Platform } from 'react-native'
 import Footer from './footer';
 import { useNavigation } from '@react-navigation/native';
 import Top from './top';
-import React from 'react';
+import React, { useContext } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { GeneralContext } from './globalContext';
 // user screen dimension
 const { width, height } = Dimensions.get('window');
  
@@ -19,6 +20,8 @@ export const bodyWidth = width - (2 * width/100);
 
 
 export default function Layout({children, props}) {
+    const {screen} = useContext(GeneralContext);
+    console.log(screen);
     const uri = props
     console.log(uri)
     const navigation = useNavigation();
@@ -37,7 +40,7 @@ export default function Layout({children, props}) {
 
             </View>
             <View style={styles.bottom}>
-                <Footer active="message" />
+                <Footer active={screen} />
             </View>
         </SafeAreaView>
     );

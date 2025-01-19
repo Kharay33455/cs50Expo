@@ -18,6 +18,7 @@ import Register from './components/register';
 import FProfile from './components/FProfile';
 import NewCommunity from './components/newCommunity';
 import CMessages from './components/communityMessages';
+import { GeneralContextProvider } from './components/globalContext';
 
 
 const Stack = createNativeStackNavigator();
@@ -25,7 +26,9 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
+    
     <>
+    <GeneralContextProvider>
     <NavigationContainer>
       <Stack.Navigator initialRouteName='Posts'>
         <Stack.Screen name='Posts' component={Posts} options={{ headerShown: false }}/>
@@ -48,6 +51,7 @@ export default function App() {
         <Stack.Screen name='CMessages' component={CMessages} options={{headerShown : false}} />
     </Stack.Navigator>
     </NavigationContainer>
+    </GeneralContextProvider>
     </>
   );
 }
