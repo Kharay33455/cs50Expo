@@ -301,9 +301,9 @@ export default function Profile() {
                                 // user stats
                             }
                             <View style={[styles.post, { justifyContent: 'space-around', paddingTop: bodyWidth / 20 }]}>
-                                <Text style={styles.fontSizing}>23 Fans</Text>
-                                <Text style={styles.fontSizing}>9 Obsessions</Text>
-                                <Text style={styles.fontSizing}>10 Stalkers</Text>
+                                <Text style={styles.fontSizing}>{data['fans']} Fan{data['fans'] > 1 &&'s'}</Text>
+                                <Text style={styles.fontSizing}>{data['obsessions']} Obsession{data['obsessions'] > 1 &&'s'}</Text>
+                                <Text style={styles.fontSizing}>{data['stalkers']} Stalker{data['stalkers'] > 1 &&'s'}</Text>
                             </View>
 
                             <View>
