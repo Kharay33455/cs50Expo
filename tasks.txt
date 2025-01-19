@@ -13,7 +13,6 @@
 . show all bans(done)
 . Lift ban(done)
 . Notify of their ban lift(done)
-. Display post by how close users are to viewer if you have their location
 . Refactor code to use layout component where useful (done)
 . create fan, obssess and stalk functionality(done)
-. footer to show correct icon in green
+. footer to show correct icon in green(done)
