@@ -1,15 +1,24 @@
+// important imports
 import { StatusBar } from 'expo-status-bar';
+// default components
 import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, View, TouchableOpacity, Text, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+// custom components
 import Footer from './footer';
-import { useEffect, useRef, useState } from 'react';
 import Message from './message';
+// hooks
+import { useEffect, useRef, useState } from 'react';
+// icons
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+// navigator to change screens
+import { useNavigation } from '@react-navigation/native';
+// safe area of screen when rendering
 import { SafeAreaView } from 'react-native-safe-area-context';
+// file management system to read and send chat media
 import * as FileSystem from 'expo-file-system';
 
+// dimensions
 const { width, height } = Dimensions.get('window');
 
 export default function Messages(props) {
@@ -79,71 +88,61 @@ export default function Messages(props) {
         }
     }, []);
 
-    // ALways make sure chat scrolls to end after loading
     useEffect(() => {
+        // initialize web socket, don't initialize within scope to allow us to call return on it during remount
         let ws = undefined;
-
+        // create socked and connect
         try {
             // Initialize web socket
             const url = 'ws://192.168.0.4:8000/ws/chat/' + mProps['id'] + '/';
             ws = new WebSocket(url);
 
+            // on successful connection
             ws.onopen = () => {
-                console.log('WebSocket Connected');
             }
 
             // handle messages that come back from server
             ws.onmessage = function (e) {
                 const data = JSON.parse(e.data);
-                console.log(data)
                 setMessages((prevMessages) => [data['message'], ...prevMessages,]);
                 setText('');
                 setImage(null);
             };
-
+            // close or shut down by error
             ws.onclose = () => {
-                console.log("WebSocket closed")
             }
-            
+            // set socket to be used outside this function
             setSocket(ws);
-            console.log("STARTED");
         
         } catch (error) {
             console.error(error)
         }
 
         return () => {
-            console.log('CLosing');
-
             ws.close();
         };
     }, []);
     // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
-
+        // if image, encode to base64 format as pictures cannot be sent over ws like in http
         if (uri) {
             const base64Image = await FileSystem.readAsStringAsync(uri, {
                 encoding: FileSystem.EncodingType.Base64,
             });
+            // create the form
             const form = {
                 'message': text,
                 'image': base64Image
             }
             socketObj.send(JSON.stringify({ 'form': form }));
-            console.log('sent with image')
         }
-        else {
+        else {// send with image as null
             const form = {
                 'message': text,
                 'image': null
             }
             socketObj.send(JSON.stringify({ 'form': form }));
-            console.log('Sent with no image')
         }
-        console.log(base64Image)
-
-
-
 
     };
 
