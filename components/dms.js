@@ -177,7 +177,7 @@ export default function Dms() {
 
                                 >
                                     <TouchableOpacity>
-                                        <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
+                                        <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id = {item['other_user']['id']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
                                     </TouchableOpacity>
                                 </View>
                             }

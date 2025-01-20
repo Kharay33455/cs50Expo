@@ -12,7 +12,7 @@ export default function Chat(props) {
         <View style={styles.container}>
             <View style={styles.row}>
                 <View>
-                <Fpfp uri = {props.pfp}/>
+                <Fpfp uri = {props.pfp} id = {props.id}/>
                 </View>
                 <View style={styles.content}>
                     <Text style={styles.displayName}>
