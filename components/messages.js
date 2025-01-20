@@ -6,7 +6,7 @@ import Message from './message';
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -16,6 +16,9 @@ export default function Messages(props) {
     const mProps = props.route.params || {};
     // store return from server
     const [data, setData] = useState({});
+
+    //messages 
+    const [messages, setMessages] = useState([]);
     // true is data is not yet delivered by server, set to false when delivered
     const [loading, setLoading] = useState(true);
     // keep track of weather or not user hs started typing
@@ -24,8 +27,9 @@ export default function Messages(props) {
     const [text, setText] = useState('');
     // image if any
     const [image, setImage] = useState('');
-    // ref to target message list
-    const flatListRef = useRef();
+
+    // web socket
+    const [socketObj, setSocket] = useState(null);
 
     const navigation = useNavigation();
 
@@ -47,9 +51,10 @@ export default function Messages(props) {
     // function to load all messages from chat id
     const sendId = async () => {
         try {
-            const response = await fetch('http://192.168.0.4:8000/chat/show?id=' + mProps['id']);
+            const response = await fetch('http://192.168.0.4:8000/chat/show/' + mProps['id']);
             const result = await response.json();
-            setData(result);
+            setData(result['other_user_id']);
+            setMessages(result['messages'])
             setLoading(false);
 
         } catch (error) {
@@ -75,13 +80,47 @@ export default function Messages(props) {
 
     // ALways make sure chat scrolls to end after loading
     useEffect(() => {
-        if (flatListRef.current) {
-            flatListRef.current.scrollToEnd({ animated: true });
-        }
-    })
+        let ws = undefined;
 
+        try {
+            // Initialize web socket
+            const url = 'ws://192.168.0.4:8000/ws/chat/' + mProps['id'] + '/';
+            ws = new WebSocket(url);
+
+            ws.onopen = () => {
+                console.log('WebSocket Connected');
+            }
+
+            // handle messages that come back from server
+            ws.onmessage = function (e) {
+                const data = JSON.parse(e.data);
+                console.log(data)
+                setMessages((prevMessages) => [data['message'], ...prevMessages, ]);
+                setText('');
+
+
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket closed")
+            }
+
+            setSocket(ws);
+            console.log("STARTED");
+
+        } catch (error) {
+            console.error(error)
+        }
+
+        return () => {
+            console.log('CLosing');
+
+            ws.close();
+        };
+    }, []);
     // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
+        socketObj.send(JSON.stringify({ 'message': text }));
         const token = data['csrf']
 
         const form = new FormData();
@@ -96,36 +135,10 @@ export default function Messages(props) {
         // append text and id of chat to send message to
         form.append('caption', text);
         form.append('id', mProps['id'])
-        try {
 
-            // get response from server
-            const response = await fetch('http://192.168.0.4:8000/chat/send-message',
-
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'X-CSRFToken': token
-                    },
-                    body: form
-                }
-            );
-
-            const result = await response.json()
-            setImage('');
-            setText('');
-            if (response.status === 200) {
-                setData(result);
-            }
-
-
-        } catch (error) {
-            console.error(error);
-        }
     };
 
-// this screen uses it's own layout.
-
+    // this screen uses it's own layout.
     return (
 
         <SafeAreaView style={styles.container}>
@@ -133,13 +146,13 @@ export default function Messages(props) {
             <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
                 <>
 
-                    <View style={{ height: isTyping? height*0.4 :  Platform.OS === 'android' ? height * 0.82 : height * 0.8 }}>
+                    <View style={{ height: isTyping ? height * 0.4 : Platform.OS === 'android' ? height * 0.82 : height * 0.8 }}>
                         <StatusBar style="auto" />
                         <View>
                             <StatusBar barStyle="dark-content" />
                             <View style={styles.top}>
                                 <TouchableOpacity onPress={() => {
-                                    navigation.navigate('FProfile', { id: data['other_user_id'] })
+                                    navigation.navigate('FProfile', { id: data })
                                 }}>
                                     <Image source={mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
                                 </TouchableOpacity>
@@ -151,9 +164,9 @@ export default function Messages(props) {
                         <View style={styles.post}>
                             {loading ? <ActivityIndicator /> :
                                 <>
-                                    <View >
+                                    <View style={{flexDirection:'column-reverse'}}>
 
-                                        <FlatList ref={flatListRef} data={data['messages']} renderItem={({ item }) => <Message message={item} />} style = {{marginBottom : height/8}}/>
+                                        <FlatList  data={messages} renderItem={({ item }) => <Message message={item} />} style={{ marginBottom: height / 8 }} inverted = {true}/>
 
                                     </View>
 
@@ -166,8 +179,8 @@ export default function Messages(props) {
                     </View>
 
                     <View>
-                        <View style={{height: isTyping && height * 0.8 }}>
-                            <View style={{ flexDirection: 'row', position: 'relative', top: 0}}>
+                        <View style={{ height: isTyping && height * 0.8 }}>
+                            <View style={{ flexDirection: 'row', position: 'relative', top: 0 }}>
 
                                 {image ?
                                     <TouchableOpacity onPress={() => {
