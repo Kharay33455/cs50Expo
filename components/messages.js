@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as FileSystem from 'expo-file-system';
 
 const { width, height } = Dimensions.get('window');
 
@@ -95,19 +96,18 @@ export default function Messages(props) {
             ws.onmessage = function (e) {
                 const data = JSON.parse(e.data);
                 console.log(data)
-                setMessages((prevMessages) => [data['message'], ...prevMessages, ]);
+                setMessages((prevMessages) => [data['message'], ...prevMessages,]);
                 setText('');
-
-
+                setImage(null);
             };
 
             ws.onclose = () => {
                 console.log("WebSocket closed")
             }
-
+            
             setSocket(ws);
             console.log("STARTED");
-
+        
         } catch (error) {
             console.error(error)
         }
@@ -120,21 +120,30 @@ export default function Messages(props) {
     }, []);
     // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
-        socketObj.send(JSON.stringify({ 'message': text }));
-        const token = data['csrf']
 
-        const form = new FormData();
-        // image if aailable
-        if (image) {
-            form.append('image', {
-                uri: uri,
-                type: 'image/jpeg',
-                name: 'image.jpg',
+        if (uri) {
+            const base64Image = await FileSystem.readAsStringAsync(uri, {
+                encoding: FileSystem.EncodingType.Base64,
             });
+            const form = {
+                'message': text,
+                'image': base64Image
+            }
+            socketObj.send(JSON.stringify({ 'form': form }));
+            console.log('sent with image')
         }
-        // append text and id of chat to send message to
-        form.append('caption', text);
-        form.append('id', mProps['id'])
+        else {
+            const form = {
+                'message': text,
+                'image': null
+            }
+            socketObj.send(JSON.stringify({ 'form': form }));
+            console.log('Sent with no image')
+        }
+        console.log(base64Image)
+
+
+
 
     };
 
@@ -164,9 +173,9 @@ export default function Messages(props) {
                         <View style={styles.post}>
                             {loading ? <ActivityIndicator /> :
                                 <>
-                                    <View style={{flexDirection:'column-reverse'}}>
+                                    <View style={{ flexDirection: 'column-reverse' }}>
 
-                                        <FlatList  data={messages} renderItem={({ item }) => <Message message={item} />} style={{ marginBottom: height / 8 }} inverted = {true}/>
+                                        <FlatList data={messages} renderItem={({ item }) => <Message message={item} />} style={{ marginBottom: height / 8 }} inverted={true} />
 
                                     </View>
 
