@@ -2,7 +2,7 @@
 import { StyleSheet, View, Image, ActivityIndicator, Text, TouchableOpacity, FlatList, TextInput, ScrollView } from 'react-native';
 
 // manage state and force rendering upon state update
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 // navigation from screen to screen
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -18,12 +18,15 @@ import * as ImagePicker from 'expo-image-picker';
 
 // layout and dimensioning
 import Layout, { baseFontSize, bodyHeight, bodyWidth } from './layout';
+import { GeneralContext } from './globalContext';
 
 // This is the size used to describe all icons, can be exactly this or relative to this(ie math has been done on it with this value)
 // The idea is to be able to change all icon size by just changing this value
 const iconSize = baseFontSize * 4
 
 export default function Profile() {
+    // socket
+    const {socket, setSignedIn} = useContext(GeneralContext)
 
     // data from server and loading state
     const [data, setData] = useState([]);
@@ -294,7 +297,7 @@ export default function Profile() {
                             {
                                 // log out button
                             }
-                            <TouchableOpacity onPress={() => { logout() }}>
+                            <TouchableOpacity onPress={() => {setSignedIn(false); socket.close(); logout() }}>
                                 <Text style={{ color: 'white', fontSize: baseFontSize * 2.5, backgroundColor: "red", padding: bodyWidth / 40, width: bodyWidth / 5, textAlign: 'center', marginLeft: bodyWidth / 50, borderRadius: bodyWidth / 10, marginTop: bodyWidth / 20 }}>Log out</Text>
                             </TouchableOpacity>
                             {

@@ -2,15 +2,17 @@
 import { Dimensions, StyleSheet, TextInput, Text, View, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 
 // manag state and rerender on state update
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 // navigate
 import { useNavigation } from '@react-navigation/native';
 
 // layout and dimensioning
 import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import { GeneralContext } from './globalContext';
 
 export default function Login(props) {
+    const {setSignedIn} = useContext(GeneralContext);
     // navigate
     const navigation = useNavigation();
     // params sent to login
@@ -51,7 +53,8 @@ export default function Login(props) {
                 navigation.navigate('Login', { err: 'Invalid username or password', from: from })
             }
             if (response.status === 200) {
-                navigation.navigate(from)
+                setSignedIn(true);
+                navigation.navigate(from);
             }
         }
         catch (error) {

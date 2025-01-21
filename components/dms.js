@@ -1,24 +1,20 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import Footer from './footer';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Top from './top';
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState, useContext } from 'react';
 import Chat from './chat';
 import Layout, { bodyHeight } from './layout';
 import MSHead from './messaging/messaging';
 import { GeneralContext } from './globalContext';
+import { globalWS } from '../application';
 // Get dimensions for user phone screen
 const { width, height } = Dimensions.get('window');
 
 
 export default function Dms(props) {
     const navigation = useNavigation();
-    const [chatList, setChatList] = useState(null)
+    const { chatList, setChatList, isRead, setIsRead } = useContext(GeneralContext)
     console.log(props.route.params);
-    const [isLoading, setLoading] = useState(true);
-    // store id of read chats
-    const [read, setRead] = useState([]);
+    const [isLoading, setLoading] = useState(false);
 
     // start point of swipe on chat objects
     const [start, setStart] = useState([0, 0]);
@@ -62,7 +58,6 @@ export default function Dms(props) {
                 SetShowDelBox(false);
                 setChatId(null);
                 setName(null)
-                get_chats();
             }
 
         } catch (error) {
@@ -70,30 +65,6 @@ export default function Dms(props) {
         }
 
     };
-
-    // get all chats
-    const get_chats = async () => {
-        try {
-            const response = await fetch('http://192.168.0.4:8000/chat/')
-            const result = await response.json()
-            setChatList(result);
-            // Keep list of ids of all read chats
-            const readChats = result['chats'].map(item =>
-                item['chat']['is_read'] ? item['chat']['id'] : null
-            );
-            setRead(readChats);
-            setLoading(false);
-            setCsrf(result['csrf'])
-
-            // redirect not authenticated users
-            if (response.status === 301) {
-                navigation.navigate("Login", { err: result['err'], from: 'Dms' })
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     const DeleteConfirmation = () => {
 
         return (
@@ -126,11 +97,6 @@ export default function Dms(props) {
         )
     };
 
-
-    useEffect(() => {
-        get_chats();
-    }, []);
-
     return (
         <>
             <Layout>
@@ -157,7 +123,7 @@ export default function Dms(props) {
                                     onTouchEnd={(e) => {
 
                                         const navigateToChat = () => {
-                                            setRead(read => [...read, item['chat']['id']]); navigation.navigate('Messages', { id: item['chat']['id'], displayName: item['other_user']['display_name'], oppfp: item['other_user']['pfp'] })
+                                            setIsRead(isRead => [...isRead, item['chat']['id']]); navigation.navigate('Messages', { id: item['chat']['id'], displayName: item['other_user']['display_name'], oppfp: item['other_user']['pfp'] })
 
                                         }
 
@@ -173,7 +139,7 @@ export default function Dms(props) {
 
                                 >
                                     <TouchableOpacity>
-                                        <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id={item['other_user']['id']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
+                                        <Chat isRead={isRead.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id={item['other_user']['id']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
                                     </TouchableOpacity>
                                 </View>
                             }
@@ -181,6 +147,7 @@ export default function Dms(props) {
                         }
 
                     </View>
+
                 </View>
             </Layout>
 

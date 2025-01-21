@@ -11,9 +11,14 @@ let iconSize = 30
 const { width, height } = Dimensions.get('window')
 export default function Footer(props) {
 
-    const { setScreen } = useContext(GeneralContext);
+    const { setScreen, msgCount } = useContext(GeneralContext);
 
     const [footerData, setFooterData] = useState({});
+    console.log(footerData)
+
+    ///
+    const [notifCount , setNotifCount] = useState(0);
+    ///
 
 
     const getFooterDets = async () => {
@@ -30,8 +35,8 @@ export default function Footer(props) {
 
 
     const interval = () => {
-            getFooterDets();
-        
+        getFooterDets();
+
     }
     useEffect(() => {
         interval();
@@ -43,10 +48,10 @@ export default function Footer(props) {
     return (
         <>
             <View style={styles.tray}>
-                <TouchableOpacity onPress={() => {  setScreen('globe-africa'); navigation.navigate('Posts') }}>
+                <TouchableOpacity onPress={() => { setScreen('globe-africa'); navigation.navigate('Posts') }}>
                     <Icon name="globe-africa" size={iconSize} color={'black'} style={active == 'globe-africa' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {setScreen('search'); navigation.navigate('Search') }}>
+                <TouchableOpacity onPress={() => { setScreen('search'); navigation.navigate('Search') }}>
                     <Icon name="search" size={iconSize} color={'black'} style={active == 'search' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => { setScreen('people-group'); navigation.navigate('MyCommunity') }}>
@@ -56,13 +61,18 @@ export default function Footer(props) {
                 <TouchableOpacity onPress={() => { setScreen('notifications'); navigation.navigate('Alert') }} style={{ position: 'relative' }}>
                     <View style={{ position: 'absolute', right: 0 }}>
                         <Text style={{ color: 'white', textAlign: 'right', fontWeight: '900' }}>
-                            {footerData['notification_count'] !== 0 && footerData['notification_count']}
+                            {footerData['notification_count'] !== 10 && footerData['notification_count']}
                         </Text>
                     </View>
                     <MIcon name="notifications" size={iconSize} color={'black'} style={active == 'notifications' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => { setScreen('message'); navigation.navigate('Dms') }}>
-                    <MCIcon name={footerData['has_new_message'] ? "message-badge" : "message"} size={iconSize} color={'black'} style={active == 'message' ? [styles.icons, styles.active] : styles.icons} />
+                <View style={{ position: 'absolute', right: 0 }}>
+                        <Text style={{ color: 'white', textAlign: 'right', fontWeight: '900' }}>
+                            {msgCount !== 0 && msgCount}
+                        </Text>
+                    </View>
+                    <MCIcon name={footerData['has_new_message'] ? "message-badge" : "message-badge"} size={iconSize} color={'black'} style={active == 'message' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
             </View>
         </>
