@@ -14,7 +14,8 @@ const { width, height } = Dimensions.get('window');
 const Stack = createNativeStackNavigator();
 
 
-export default function Search() {
+export default function Search(props) {
+    console.log(props.route.params);
     const navigation = useNavigation();
     const [search, setSearch] = useState('');
     return (

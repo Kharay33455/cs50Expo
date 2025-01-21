@@ -16,3 +16,6 @@
 . Refactor code to use layout component where useful (done)
 . create fan, obssess and stalk functionality(done)
 . footer to show correct icon in green(done)
+. make chat messages async(done)
+. make chat show page async
+. make notification panel async

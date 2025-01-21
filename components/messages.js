@@ -90,13 +90,10 @@ export default function Messages(props) {
 
     useEffect(() => {
         // initialize web socket, don't initialize within scope to allow us to call return on it during remount
-        let ws = undefined;
-        // create socked and connect
+        // Initialize web socket
+        const url = 'ws://192.168.0.4:8000/ws/chat/' + mProps['id'] + '/';
+        const ws = new WebSocket(url);
         try {
-            // Initialize web socket
-            const url = 'ws://192.168.0.4:8000/ws/chat/' + mProps['id'] + '/';
-            ws = new WebSocket(url);
-
             // on successful connection
             ws.onopen = () => {
             }
@@ -108,12 +105,14 @@ export default function Messages(props) {
                 setText('');
                 setImage(null);
             };
+            
             // close or shut down by error
             ws.onclose = () => {
             }
+            
             // set socket to be used outside this function
             setSocket(ws);
-        
+
         } catch (error) {
             console.error(error)
         }
@@ -122,13 +121,16 @@ export default function Messages(props) {
             ws.close();
         };
     }, []);
+    
     // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
+    
         // if image, encode to base64 format as pictures cannot be sent over ws like in http
         if (uri) {
             const base64Image = await FileSystem.readAsStringAsync(uri, {
                 encoding: FileSystem.EncodingType.Base64,
             });
+    
             // create the form
             const form = {
                 'message': text,
@@ -136,7 +138,9 @@ export default function Messages(props) {
             }
             socketObj.send(JSON.stringify({ 'form': form }));
         }
-        else {// send with image as null
+        else {
+            
+            // send with image as null
             const form = {
                 'message': text,
                 'image': null

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon6 from 'react-native-vector-icons/FontAwesome6';
@@ -15,7 +15,6 @@ export default function Footer(props) {
 
     const [footerData, setFooterData] = useState({});
 
-    const intRef = useRef(null);
 
     const getFooterDets = async () => {
         try {
@@ -47,7 +46,7 @@ export default function Footer(props) {
                 <TouchableOpacity onPress={() => {  setScreen('globe-africa'); navigation.navigate('Posts') }}>
                     <Icon name="globe-africa" size={iconSize} color={'black'} style={active == 'globe-africa' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { setScreen('search'); navigation.navigate('Search') }}>
+                <TouchableOpacity onPress={() => {setScreen('search'); navigation.navigate('Search') }}>
                     <Icon name="search" size={iconSize} color={'black'} style={active == 'search' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => { setScreen('people-group'); navigation.navigate('MyCommunity') }}>

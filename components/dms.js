@@ -3,17 +3,19 @@ import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Fla
 import Footer from './footer';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Top from './top';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 import Chat from './chat';
 import Layout, { bodyHeight } from './layout';
 import MSHead from './messaging/messaging';
+import { GeneralContext } from './globalContext';
 // Get dimensions for user phone screen
 const { width, height } = Dimensions.get('window');
 
 
-export default function Dms() {
+export default function Dms(props) {
     const navigation = useNavigation();
-    const [data, setData] = useState(null);
+    const [chatList, setChatList] = useState(null)
+    console.log(props.route.params);
     const [isLoading, setLoading] = useState(true);
     // store id of read chats
     const [read, setRead] = useState([]);
@@ -35,9 +37,6 @@ export default function Dms() {
     const [showDelBox, SetShowDelBox] = useState(false);
 
     const [csrf, setCsrf] = useState(null);
-
-
-
 
     // delete chat function
     const deletChat = async (_chatId) => {
@@ -77,7 +76,7 @@ export default function Dms() {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/')
             const result = await response.json()
-            setData(result);
+            setChatList(result);
             // Keep list of ids of all read chats
             const readChats = result['chats'].map(item =>
                 item['chat']['is_read'] ? item['chat']['id'] : null
@@ -128,22 +127,19 @@ export default function Dms() {
     };
 
 
-    useFocusEffect(
-        useCallback(() => {
-            get_chats();
-        }, [])
-    )
-
+    useEffect(() => {
+        get_chats();
+    }, []);
 
     return (
         <>
             <Layout>
                 <View style={{ height: bodyHeight }}>
 
-                    <MSHead active = 'DMS'/>
+                    <MSHead active='DMS' />
                     <View>
                         {isLoading ? <ActivityIndicator /> :
-                            <FlatList data={data['chats']} renderItem={({ item }) =>
+                            <FlatList data={chatList['chats']} renderItem={({ item }) =>
                                 <View
 
                                     style={{ marginLeft: chatId === item['chat']['id'] ? -swipeValue : 0 }}
@@ -177,7 +173,7 @@ export default function Dms() {
 
                                 >
                                     <TouchableOpacity>
-                                        <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id = {item['other_user']['id']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
+                                        <Chat isRead={read.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id={item['other_user']['id']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
                                     </TouchableOpacity>
                                 </View>
                             }
@@ -199,7 +195,7 @@ export default function Dms() {
 }
 
 const styles = StyleSheet.create({
-   
+
     deletChat: {
         position: 'absolute',
         flex: 1,
