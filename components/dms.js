@@ -1,20 +1,20 @@
 import { Dimensions, StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState, useContext } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Chat from './chat';
 import Layout, { bodyHeight } from './layout';
 import MSHead from './messaging/messaging';
 import { GeneralContext } from './globalContext';
-import { globalWS } from '../application';
 // Get dimensions for user phone screen
 const { width, height } = Dimensions.get('window');
 
 
 export default function Dms(props) {
     const navigation = useNavigation();
-    const { chatList, setChatList, isRead, setIsRead } = useContext(GeneralContext)
-    console.log(props.route.params);
-    const [isLoading, setLoading] = useState(false);
+    const [chatList, setChatList] = useState(null)
+    const [isLoading, setLoading] = useState(true);
+    // store id of read chats
+    const { unRead, setUnRead } = useContext(GeneralContext);
 
     // start point of swipe on chat objects
     const [start, setStart] = useState([0, 0]);
@@ -40,7 +40,6 @@ export default function Dms(props) {
         const form = new FormData();
 
         form.append('chatId', _chatId);
-        console.log(_chatId)
         // delete chat from server
         try {
             const response = await fetch("http:192.168.0.4:8000/chat/delete-chat",
@@ -54,10 +53,10 @@ export default function Dms(props) {
                 }
             );
             if (response.status === 204) {
-                console.log('deleted')
                 SetShowDelBox(false);
                 setChatId(null);
                 setName(null)
+                get_chats();
             }
 
         } catch (error) {
@@ -65,6 +64,26 @@ export default function Dms(props) {
         }
 
     };
+
+    // get all chats
+    const get_chats = async () => {
+        try {
+            const response = await fetch('http://192.168.0.4:8000/chat/')
+            const result = await response.json()
+            setChatList(result);
+
+            setLoading(false);
+            setCsrf(result['csrf'])
+
+            // redirect not authenticated users
+            if (response.status === 301) {
+                navigation.navigate("Login", { err: result['err'], from: 'Dms' })
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const DeleteConfirmation = () => {
 
         return (
@@ -97,6 +116,11 @@ export default function Dms(props) {
         )
     };
 
+useFocusEffect(
+    useCallback(()=>{
+        get_chats();
+    }, [])
+)
     return (
         <>
             <Layout>
@@ -123,7 +147,7 @@ export default function Dms(props) {
                                     onTouchEnd={(e) => {
 
                                         const navigateToChat = () => {
-                                            setIsRead(isRead => [...isRead, item['chat']['id']]); navigation.navigate('Messages', { id: item['chat']['id'], displayName: item['other_user']['display_name'], oppfp: item['other_user']['pfp'] })
+                                            navigation.navigate('Messages', { id: item['chat']['id'], displayName: item['other_user']['display_name'], oppfp: item['other_user']['pfp'] })
 
                                         }
 
@@ -139,7 +163,10 @@ export default function Dms(props) {
 
                                 >
                                     <TouchableOpacity>
-                                        <Chat isRead={isRead.includes(item['chat']['id']) ? true : false} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id={item['other_user']['id']} time={item['chat']['time']} lastText={item['chat']['last_text']} />
+                                        {
+                                            // render chat.. If isREad contains an object whose id is chat, use websocket to sync communication.
+                                        }
+                                        <Chat isRead={unRead.some(_item=> _item['chat_id'] === item['chat']['id']) ? false : true} displayName={item['other_user']['display_name']} pfp={item['other_user']['pfp']} id={item['other_user']['id']} time={unRead.find(_item => _item['chat_id'] === item['chat']['id']) !== undefined? unRead.find(_item => _item['chat_id'] === item['chat']['id'])['time']: item['chat']['time'] } lastText={unRead.find(_item => _item['chat_id'] === item['chat']['id']) !== undefined? unRead.find(_item => _item['chat_id'] === item['chat']['id'])['last_text']: item['chat']['last_text'] } />
                                     </TouchableOpacity>
                                 </View>
                             }
@@ -147,7 +174,6 @@ export default function Dms(props) {
                         }
 
                     </View>
-
                 </View>
             </Layout>
 

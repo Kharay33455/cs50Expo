@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { Dimensions, StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon6 from 'react-native-vector-icons/FontAwesome6';
@@ -13,34 +13,10 @@ export default function Footer(props) {
 
     const { setScreen, msgCount } = useContext(GeneralContext);
 
-    const [footerData, setFooterData] = useState({});
-    console.log(footerData)
 
     ///
-    const [notifCount , setNotifCount] = useState(0);
+    const {notifCount} = useContext(GeneralContext);
     ///
-
-
-    const getFooterDets = async () => {
-        try {
-            const response = await fetch('http://192.168.0.4:8000/api-person/footer-details');
-            const result = await response.json();
-            setFooterData(result);
-            console.log(result);
-
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-
-    const interval = () => {
-        getFooterDets();
-
-    }
-    useEffect(() => {
-        interval();
-    }, []);
 
     const active = props.active
 
@@ -61,7 +37,7 @@ export default function Footer(props) {
                 <TouchableOpacity onPress={() => { setScreen('notifications'); navigation.navigate('Alert') }} style={{ position: 'relative' }}>
                     <View style={{ position: 'absolute', right: 0 }}>
                         <Text style={{ color: 'white', textAlign: 'right', fontWeight: '900' }}>
-                            {footerData['notification_count'] !== 10 && footerData['notification_count']}
+                            {notifCount !== 10 && notifCount}
                         </Text>
                     </View>
                     <MIcon name="notifications" size={iconSize} color={'black'} style={active == 'notifications' ? [styles.icons, styles.active] : styles.icons} />
@@ -72,7 +48,7 @@ export default function Footer(props) {
                             {msgCount !== 0 && msgCount}
                         </Text>
                     </View>
-                    <MCIcon name={footerData['has_new_message'] ? "message-badge" : "message-badge"} size={iconSize} color={'black'} style={active == 'message' ? [styles.icons, styles.active] : styles.icons} />
+                    <MCIcon name={"message-badge" } size={iconSize} color={'black'} style={active == 'message' ? [styles.icons, styles.active] : styles.icons} />
                 </TouchableOpacity>
             </View>
         </>

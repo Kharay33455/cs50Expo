@@ -42,7 +42,6 @@ export default function NewCommunity() {
         form.append('name', name);
         form.append('isPrivate', isPrivate);
         form.append('description', description);
-        console.log(csrf);
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/new-community',
                 {
@@ -56,7 +55,6 @@ export default function NewCommunity() {
 
             );
             const result = await response.json();
-            console.log(result);
             if (response.status === 400) {
                 setErr('Name cannot be blank')
             }
@@ -64,7 +62,7 @@ export default function NewCommunity() {
                 navigation.navigate('CPosts', { id: result['id'] });
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -75,7 +73,7 @@ export default function NewCommunity() {
             setCsrf(result['csrf']);
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
     useEffect(() => {

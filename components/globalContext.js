@@ -17,6 +17,10 @@ export const GeneralContextProvider = ({ children }) => {
 
     const [signedIn, setSignedIn] = useState(false);
 
+    const [notifCount, setNotifCount] = useState(0);
+
+    const [unRead, setUnRead] = useState([]);
+
 
     /*
     SOCKET IMPLEMENTATION
@@ -39,10 +43,16 @@ export const GeneralContextProvider = ({ children }) => {
             // on receive from server 
             globalWS.onmessage = (e) => {
                 const data = JSON.parse(e.data);
-                console.log(data);
                 data['type'] === 'connection_established' && setMsgCount(data['unread']);
                 // check signal type and take action
-                data['type'] === 'new_message_signal' && setMsgCount(data['unread']);
+                if (data['type'] === 'new_message_signal'){
+                
+                    console.log(data)
+                    setMsgCount(data['unread']);
+                    setUnRead(data['unread_ids']);
+
+                }
+                data['type'] === 'notif_count' && setNotifCount(data['notif_count']);
             }
 
             // web closing
@@ -53,24 +63,24 @@ export const GeneralContextProvider = ({ children }) => {
             }
 
 
-
-
-
         } catch (error) {
             console.error(error);
         }
     }
-    console.log('msg ciount = ', msgCount);
+
+    if(socket){
+        socket.send(JSON.stringify({'message':'get_notif_count'}));
+    }
 
     // auto connect in case of unsuspected misconnection
     if (socket === null && signedIn) {
         chatSocket();
     }
-    console.log('socket is ', socket);
+
 
     // store chat list
     return (
-        <GeneralContext.Provider value={{ screen, setScreen, chatList, setChatList, isRead, setIsRead, socket, setSocket, msgCount, setSignedIn }}>
+        <GeneralContext.Provider value={{ unRead, setUnRead, screen, setScreen, chatList, setChatList, isRead, setIsRead, socket, setSocket, msgCount, setSignedIn, setMsgCount, notifCount }}>
             {children}
         </GeneralContext.Provider>
     )

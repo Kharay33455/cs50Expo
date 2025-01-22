@@ -71,7 +71,6 @@ const CommunityChat = () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/community-chat');
             const result = await response.json()
-            console.log(result)
             setCCL(result['comm_list']);
             setLoading(false);
         } catch (error) {

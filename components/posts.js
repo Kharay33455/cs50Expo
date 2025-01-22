@@ -5,10 +5,11 @@ import {StyleSheet, ActivityIndicator, FlatList, View } from 'react-native';
 import Post from './post';
 
 // useEffect to rerender on state change and useState to manage states
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 // Import custom component layout and parameters for dimensioning
 import Layout, {bodyHeight, bodyWidth} from './layout';
+import { GeneralContext } from './globalContext';
 
 
 // default function expoty
@@ -24,12 +25,14 @@ export default function Posts() {
     const controller = new AbortController();
     const { signal } = controller
 
+    const {setSignedIn} = useContext(GeneralContext);
     // function to get all posts
     const getPosts = async () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/?format=json', { signal })
             const result = await response.json()
             setData(result);
+            setSignedIn(result['signed_in']);
         }
         catch (error) {
             console.error(error)

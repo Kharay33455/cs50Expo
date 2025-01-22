@@ -56,7 +56,6 @@ export default function CMessages(props) {
             if (response.status === 200) {
                 setMessages(result);
                 setIsLoading(false);
-                console.log(result)
                 // wait a second to allow component render before attempting scroll to last message
                 setTimeout(() => {
                     try {
@@ -86,7 +85,6 @@ export default function CMessages(props) {
         const form = new FormData();
         form.append('text', text);
         setText('');
-        console.log(image);
         if (image) {
             form.append('image', {
                 uri: image,
@@ -241,7 +239,6 @@ export default function CMessages(props) {
                             }
                             <TouchableOpacity style={{ width: bodyWidth * 0.1 }}
                                 onPress={() => {
-                                    console.log(text);
                                     sendNewMessages();
                                 }}
                             >

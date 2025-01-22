@@ -41,7 +41,6 @@ export default function Explore() {
             });
             setLocation(location.coords);
             getMyCommunities(location.coords.longitude, location.coords.latitude, 0.2);
-            console.log(location);
         };
         getLocation();
     }, []);
@@ -54,15 +53,11 @@ export default function Explore() {
             const result = await response.json()
             if (response.status === 200) {
                 setData(result);
-                console.log(result)
                 setIsLoading(false);
             }
         }
         catch (error) {
             console.error(error);
-        }
-        finally {
-            console.log(result)
         }
 
     };

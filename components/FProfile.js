@@ -49,7 +49,6 @@ export default function FProfile(props) {
             setBio(data['bio']);
             setDisplayName(data['display_name']);
             data['pfp'] && setImage(data['pfp']);
-            console.log(data);
             setFans(data['fans']);
             setObsessions(data['obsessions']);
             setStalkers(data['stalkers']);
@@ -77,7 +76,7 @@ export default function FProfile(props) {
                 navigation.navigate('Messages', { id: result['id'], displayName: result['other_display_name'], oppfp: result['other_pfp'] })
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

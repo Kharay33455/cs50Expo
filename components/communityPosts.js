@@ -251,7 +251,6 @@ export default function CPosts(props) {
     const liftBan = async(userId, communityId) => {
         try {
             const resp = await fetch('http://192.168.0.4:8000/api-person/lift-ban?userId='+userId+'&communityId='+communityId);
-            console.log(resp.status);
             if (resp.status===200){
                 // remove member from banned list and push member to unbanned list
                 const tempBan = banned.filter((item)=> item && item['id'] !== userId);
@@ -278,7 +277,6 @@ export default function CPosts(props) {
     const banUser = async (userId, community_id) => {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/ban-user?userId=' + userId + '&commId=' + community_id)
-            console.log(response.status);
 
             if (response.status === 403) {
                 const result = await response.json();

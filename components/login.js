@@ -30,7 +30,6 @@ export default function Login(props) {
 
     // login function. Submin username and password to server, navigate to profile with details returned if succesful else alert user of login error
     const login = async () => {
-        console.log(csrf)
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/login',
                 {
@@ -72,7 +71,7 @@ export default function Login(props) {
             const results = await response.json();
             setCsrf(results['csrf']);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

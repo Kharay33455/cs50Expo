@@ -21,9 +21,7 @@ export const bodyWidth = width - (2 * width/100);
 
 export default function Layout({children, props}) {
     const {screen} = useContext(GeneralContext);
-    console.log(screen);
     const uri = props
-    console.log(uri)
     const navigation = useNavigation();
     return (
         <SafeAreaView style={styles.container}>
