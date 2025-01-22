@@ -17,5 +17,8 @@
 . create fan, obssess and stalk functionality(done)
 . footer to show correct icon in green(done)
 . make chat messages async(done)
-. make chat show page async
-. make notification panel async
+. make chat show page async(done)
+. search functionality(done)
+. Post extension ui(done)
+. close message socket on exit(done)
+. open if trying to send message but chat socket is close

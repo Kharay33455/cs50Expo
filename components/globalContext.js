@@ -21,6 +21,8 @@ export const GeneralContextProvider = ({ children }) => {
 
     const [unRead, setUnRead] = useState([]);
 
+    const [sResult, setSresult] = useState([]);
+
 
     /*
     SOCKET IMPLEMENTATION
@@ -47,12 +49,13 @@ export const GeneralContextProvider = ({ children }) => {
                 // check signal type and take action
                 if (data['type'] === 'new_message_signal'){
                 
-                    console.log(data)
                     setMsgCount(data['unread']);
                     setUnRead(data['unread_ids']);
 
                 }
                 data['type'] === 'notif_count' && setNotifCount(data['notif_count']);
+
+                data['type'] === 'search' && setSresult(data['message']);
             }
 
             // web closing
@@ -80,7 +83,7 @@ export const GeneralContextProvider = ({ children }) => {
 
     // store chat list
     return (
-        <GeneralContext.Provider value={{ unRead, setUnRead, screen, setScreen, chatList, setChatList, isRead, setIsRead, socket, setSocket, msgCount, setSignedIn, setMsgCount, notifCount }}>
+        <GeneralContext.Provider value={{ sResult, unRead, setUnRead, screen, setScreen, chatList, setChatList, isRead, setIsRead, socket, setSocket, msgCount, setSignedIn, setMsgCount, notifCount }}>
             {children}
         </GeneralContext.Provider>
     )

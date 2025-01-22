@@ -6,13 +6,13 @@ import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, Vie
 import Footer from './footer';
 import Message from './message';
 // hooks
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 // icons
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
 // navigator to change screens
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 // safe area of screen when rendering
 import { SafeAreaView } from 'react-native-safe-area-context';
 // file management system to read and send chat media
@@ -88,7 +88,8 @@ export default function Messages(props) {
         }
     }, []);
 
-    useEffect(() => {
+
+    const initSocket = () => {
         // initialize web socket, don't initialize within scope to allow us to call return on it during remount
         // Initialize web socket
         const url = 'ws://192.168.0.4:8000/ws/chat/' + mProps['id'] + '/';
@@ -105,32 +106,41 @@ export default function Messages(props) {
                 setText('');
                 setImage(null);
             };
-            
+
             // close or shut down by error
             ws.onclose = () => {
+                setSocket(null);
             }
-            
+
             // set socket to be used outside this function
-            setSocket(ws);
+            return ws
 
         } catch (error) {
             console.error(error)
         }
+    }
 
-        return () => {
-            ws.close();
-        };
-    }, []);
-    
+    useFocusEffect(
+        useCallback(
+            () => {
+                let wsh = initSocket();
+                setSocket(wsh);
+
+                return () => {
+                    wsh.close();
+                };
+            }, [])
+    )
+
     // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
-    
+
         // if image, encode to base64 format as pictures cannot be sent over ws like in http
         if (uri) {
             const base64Image = await FileSystem.readAsStringAsync(uri, {
                 encoding: FileSystem.EncodingType.Base64,
             });
-    
+
             // create the form
             const form = {
                 'message': text,
@@ -139,7 +149,7 @@ export default function Messages(props) {
             socketObj.send(JSON.stringify({ 'form': form }));
         }
         else {
-            
+
             // send with image as null
             const form = {
                 'message': text,
@@ -165,6 +175,7 @@ export default function Messages(props) {
                             <View style={styles.top}>
                                 <TouchableOpacity onPress={() => {
                                     navigation.navigate('FProfile', { id: data })
+                                    socketObj.close();
                                 }}>
                                     <Image source={mProps['oppfp'] !== null ? { uri: mProps['oppfp'] } : require('../images/placeholder-male.jpg')} style={{ width: width / 10, height: width / 10, alignSelf: 'center', borderRadius: width / 10 }} />
                                 </TouchableOpacity>
@@ -212,7 +223,9 @@ export default function Messages(props) {
                             </View>
                         </View>
 
-                        <View style={styles.bottom}>
+                        <View style={styles.bottom} onPress ={()=>{
+                            socketObj.close();
+                        }}>
                             <Footer active="message" />
                         </View>
                     </View>

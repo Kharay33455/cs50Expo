@@ -56,7 +56,7 @@ export default function PostE(props) {
 
     return (
         <Layout>
-            <View style={styles.post}>
+            <ScrollView style={styles.post}>
                 {isLoading ? <ActivityIndicator /> :
                     <>
                         <KeyboardAvoidingView enabled={true} behavior={Platform.OS === 'ios' ? 'position' : 'height'}>
@@ -95,7 +95,7 @@ export default function PostE(props) {
 
                     </>
                 }
-            </View>
+            </ScrollView>
         </Layout>
     );
 }
@@ -109,7 +109,8 @@ const styles = StyleSheet.create({
         paddingLeft: width / 50,
         paddingRight: width / 50,
         flexDirection: 'row',
-        height:bodyHeight,
+        height: bodyHeight,
+        width:bodyWidth
     },
     bottom: {
         position: 'absolute',

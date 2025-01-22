@@ -1,12 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Dimensions, StyleSheet, TextInput, View, SafeAreaView, ScrollView, Text, TouchableOpacity } from 'react-native';
 import Footer from './footer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from '@react-navigation/native';
 import Sresults from './sresults';
 import Top from './top';
+import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import { GeneralContext } from './globalContext';
+import SCommunity from './community/singleCommunity';
 
 
 const { width, height } = Dimensions.get('window');
@@ -15,28 +18,72 @@ const Stack = createNativeStackNavigator();
 
 
 export default function Search(props) {
-    console.log(props.route.params);
+
     const navigation = useNavigation();
-    const [search, setSearch] = useState('');
-    return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar style="auto" />
-                <SafeAreaView style={styles.safe}>
-                <StatusBar barStyle="dark-content" />
-                  <View style={styles.top}>
-                <Top/>
-                </View>
-                </SafeAreaView>
+    const { socket } = useContext(GeneralContext);
+
+
+
+
+
+
+
+
+
+    const SearchBox = () => {
+        const [search, setSearch] = useState('');
+
+
+        return (
             <View style={styles.post}>
-                <TextInput value={search} onChangeText={setSearch} placeholder='Search' style={styles.input} />
-                <TouchableOpacity onPress={()=>{navigation.navigate(Sresults)}}>
-                        <Icon name='search' size={width/15} style = {{paddingLeft:(width*0.16)/4}} />
+                <TextInput style={styles.input} onChangeText={(text)=>{
+                    setSearch(text)
+                }} value={search} placeholder='Search' />
+                <TouchableOpacity onPress={() => {
+                    console.log(search);
+                    socket.send(JSON.stringify({ 'message': 'search', 'value': search }));
+                }}>
+                    <Icon name='search' size={width / 15} style={{ paddingLeft: (width * 0.16) / 4 }} />
                 </TouchableOpacity>
             </View>
-            <View style={styles.bottom}>
-                <Footer active="search" />
-            </View>
-        </SafeAreaView>
+        )
+    }
+
+
+
+
+
+    // search result
+    const SResult = () => {
+        const { sResult } = useContext(GeneralContext);
+
+        return (
+            <ScrollView>
+                {
+                    sResult.length === 0 ? <Text style={{textAlign:'center', fontSize: baseFontSize *7}}>No matching result</Text> :
+                    sResult.map((item) => <SCommunity isPrivate={item['is_private']} id={item['comm_id']} creator={item['creator']} name={item['name']} communityPfp={item['pfp']} /> )
+                }
+            </ScrollView>
+        )
+    }
+
+
+
+
+
+
+
+
+
+    return (
+        <>
+            <Layout>
+                <View style={{ height: bodyHeight }}>
+                    <SearchBox />
+                    <SResult />
+                </View>
+            </Layout>
+        </>
     );
 }
 
@@ -60,7 +107,7 @@ const styles = StyleSheet.create({
     input: {
         borderStyle: 'solid',
         borderColor: 'black',
-        height: height/20,
+        height: height / 20,
         borderWidth: 1,
         width: width / 1.2
     }

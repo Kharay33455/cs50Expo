@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, Dimensions } from "react-native"
 import Fpfp from "./fpfp"
 
-const { height, width } = Dimensions.get('screen')
+import { bodyWidth, baseFontSize, bodyHeight } from "./layout"
 
 export default function Comment(props) {
     return (
@@ -9,8 +9,8 @@ export default function Comment(props) {
             <View style={styles.container}>
                 <View style={styles.commentHead}>
                     <Fpfp uri={props.comment['pfp']} />
-                    <View>
-                        <Text>
+                    <View style={{alignSelf:'flex-end', paddingLeft:bodyWidth*0.02}}>
+                        <Text style={{color:'orange', fontWeight:'900'}}>
                             {props.comment['display_name']}
                         </Text>
                         <Text>
@@ -22,7 +22,7 @@ export default function Comment(props) {
                     <Text style={styles.comment}>
                         {props.comment['comment']}
                     </Text>
-                    <Text style={{marginLeft:width/20}}>
+                    <Text >
                         {props.comment['time']}
                     </Text>
                 </View>
@@ -38,13 +38,14 @@ const styles = StyleSheet.create({
     },
     comment:
     {
-        fontSize: width / 30,
-        width: width / 2,
-        marginLeft: width / 30,
+        fontSize: baseFontSize *4,
+        width: bodyWidth *0.6,
+        marginLeft: bodyHeight*0.1,
 
     },
-    container: {
-        marginBottom: height / 300,
-        marginTop: height / 100
+    container:{
+        marginTop:bodyHeight/100,
+        marginBottom : bodyHeight/ 100
     }
+
 })

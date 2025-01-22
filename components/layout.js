@@ -25,8 +25,8 @@ export default function Layout({children, props}) {
     const navigation = useNavigation();
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar style="dark-content" />
-            <View style={{height : height * 0.05}}>
+            <StatusBar style="dark-content"/>
+            <View style={{height : height * 0.05, zIndex:10, backgroundColor:'white'}}>
                 <Top />
             </View>
     
@@ -47,7 +47,7 @@ export default function Layout({children, props}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: 'white',
     },
     bottom: {
         padding: height / 50,
