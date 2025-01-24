@@ -1,7 +1,7 @@
 // all imports
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useState, useContext, useEffect } from 'react';
+import {  useNavigation } from '@react-navigation/native';
+import {  useState, useContext, useEffect } from 'react';
 // Layout and dimensioning
 import Layout, { bodyHeight, baseFontSize, bodyWidth } from './layout';
 import FIcon from 'react-native-vector-icons/FontAwesome'

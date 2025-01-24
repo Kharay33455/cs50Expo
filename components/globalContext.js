@@ -46,7 +46,6 @@ export const GeneralContextProvider = ({ children }) => {
             // on receive from server 
             globalWS.onmessage = (e) => {
                 const data = JSON.parse(e.data);
-                console.log(data)
                 data['type'] === 'comm_signal' && setComm(data['message'])
                 data['type'] === 'connection_established' && setMsgCount(data['unread']);
                 // check signal type and take action
@@ -91,7 +90,6 @@ export const GeneralContextProvider = ({ children }) => {
         socket.send(JSON.stringify({ 'message': 'get_notif_count' }));
     }
     
-    console.log('Chat list is ', chatList);
 
 
     // auto connect in case of unsuspected misconnection

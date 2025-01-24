@@ -46,7 +46,7 @@ export default function Application() {
             }
             // redirect not authenticated users
             if (response.status === 301) {
-                console.log('err');
+                console.error('err');
             }
         } catch (error) {
             console.error(error);
