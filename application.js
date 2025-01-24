@@ -41,7 +41,7 @@ export default function Application() {
                 const readChats = result['chats'].map(item =>
                     item['chat']['is_read'] ? item['chat']['id'] : null
                 );
-                setChatList(result);
+                setChatList(result['chats']);
                 setIsRead(readChats);
             }
             // redirect not authenticated users

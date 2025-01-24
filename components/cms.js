@@ -1,17 +1,20 @@
 // all imports
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useContext, useEffect } from 'react';
 // Layout and dimensioning
 import Layout, { bodyHeight, baseFontSize, bodyWidth } from './layout';
 import FIcon from 'react-native-vector-icons/FontAwesome'
 // Custom component. The head bar to navigate between community chat and private chat
 import MSHead from './messaging/messaging';
+import { GeneralContext } from './globalContext';
 
 // origin of all fonts. All font sizes are mathematical functions of this number. Change this to change all font size
 
 // profile image size. height, width, border radius
 const imageSize = baseFontSize * 10;
+
+
 
 // A single community chat object
 const SingleCommunityChat = (props) => {
@@ -41,7 +44,7 @@ const SingleCommunityChat = (props) => {
                                 {props.name}
                             </Text>
                             <Text>
-                                {props.lastText === 'Photo' ?
+                                {props.lastText === null ?
 
                                     <FIcon name='image' size={baseFontSize * 5} color={'orange'} />
 
@@ -63,10 +66,11 @@ const SingleCommunityChat = (props) => {
 
 const CommunityChat = () => {
     const navigation = useNavigation();
-    // community chat list
-    const [communityChatList, setCCL] = useState([]);
     // check if community is still loading
     const [loading, setLoading] = useState(true);
+    // comm lsit of last texts and time send
+    const {comm, communityChatList, setCCL} = useContext(GeneralContext);
+
     const getChatList = async () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/community-chat');
@@ -78,11 +82,16 @@ const CommunityChat = () => {
         }
     }
 
-    useFocusEffect(
-        useCallback(() => {
-            getChatList();
-        }, [])
-    )
+    //useFocusEffect(
+       // useCallback(() => {
+        //    getChatList();
+      //  }, [])
+    //)
+
+    useEffect(()=>{
+        getChatList();
+
+    } , []);
 
 
     return (
@@ -113,7 +122,7 @@ const CommunityChat = () => {
                                     <FlatList data={communityChatList} renderItem={({ item }) =>
 
                                         <View>
-                                            <SingleCommunityChat name={item['community_name']} commId={item['community_id']} lastText={item['community_last_text']} communityPfp={item['community_pfp']} item={item} />
+                                            <SingleCommunityChat name={item['community_name']} commId={item['community_id']} lastText={comm.find((_)=> _['comm_id'] === item['community_id'] )!== undefined ? comm.find((_)=>_['comm_id'] === item['community_id'] )['last_text'] : item['community_last_text']} communityPfp={item['community_pfp']} item={item} />
                                         </View>
                                     }
                                     />
@@ -128,7 +137,6 @@ const CommunityChat = () => {
 }
 
 export default function Cms() {
-    const navigation = useNavigation();
 
     return (
         <Layout>

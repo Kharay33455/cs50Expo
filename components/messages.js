@@ -214,7 +214,7 @@ export default function Messages(props) {
                                     <Icon name='image' size={width / 10} style={{ margin: 'auto' }} onPress={() => {
                                         pickImage();
                                     }} />}
-                                <TextInput style={styles.input} onChangeText={setText} value={text} />
+                                <TextInput style={styles.input} onChangeText={setText} value={text} autoFocus={true}/>
                                 <Icon name='send' size={width / 10} style={{ margin: 'auto' }} onPress={() => {
                                     sendMessage(image);
                                 }} />

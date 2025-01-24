@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from "react";
 // layout and dimension sizing
 import Layout, { bodyHeight, baseFontSize, bodyWidth } from "./layout";
 // default components
-import { Keyboard, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView } from "react-native";
+import { Keyboard, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, FlatList } from "react-native";
 // font awesome icons
 import FIcon from 'react-native-vector-icons/FontAwesome';
 // image picker
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 // dimensioning
 const width = bodyWidth
@@ -17,8 +18,6 @@ const height = bodyHeight
 export default function CMessages(props) {
     // extra params passed to fucntion or empty if none exists. It should contain the ID of the community
     const params = props.route.params || {};
-    // Red to target the scroll view that holds messages
-    const messageListRef = useRef();
     // Message to send
     const [text, setText] = useState('');
 
@@ -33,6 +32,15 @@ export default function CMessages(props) {
 
     // Check if user is typing
     const [isTyping, SetIsTyping] = useState(false);
+
+    // socket
+    const [socket, setSocket] = useState(null);
+
+    // err
+    const [err, setErr] = useState('');
+
+    // message list
+    const [messageList, setMessageList] = useState([]);
 
     // image picker
     const pickImage = async () => {
@@ -55,18 +63,9 @@ export default function CMessages(props) {
 
             if (response.status === 200) {
                 setMessages(result);
+                setMessageList(result['msg_list'])
                 setIsLoading(false);
-                // wait a second to allow component render before attempting scroll to last message
-                setTimeout(() => {
-                    try {
-                        messageListRef.current.scrollToEnd({ animated: true });
 
-                    } catch (error) {
-                        if (!error instanceof TypeError) {
-                            console.error(error);
-                        }
-                    }
-                }, 1000);
             }
 
         } catch (error) {
@@ -77,62 +76,42 @@ export default function CMessages(props) {
 
     useEffect(() => {
         getAllCommMessages();
-    }, []);
+        const ws = new WebSocket('ws://192.168.0.4:8000/ws/chat/comm/' + params['commId'] + '/');
 
-    // send new messages function
-    const sendNewMessages = async () => {
-        // create frm with text and image if available. Set both to null after data extraction
-        const form = new FormData();
-        form.append('text', text);
-        setText('');
-        if (image) {
-            form.append('image', {
-                uri: image,
-                name: 'q' + image,
-                type: 'image/jpg',
-            })
-            setImage(null);
-        }
-        // attempt to send the message
         try {
-            const response = await fetch('http://192.168.0.4:8000/chat/comm-messages?commId=' + params['commId'],
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'X-CSRFToken': messages['csrf']
-                    },
-                    body: form
-                }
-            );
-
-            if (response.status === 200) {
-                const result = await response.json()
-                // load new messages
-                setMessages(result);
-                setTimeout(() => {
-                    try {
-                        messageListRef.current.scrollToEnd({ animated: true });
-
-                    } catch (error) {
-                        console.error(error)
-                    }
-                }, 1000);
+            ws.onopen = () => {
+                setErr('');
             }
-
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                setMessageList((prev) => [data, ...prev]);
+            }
+            ws.onclose = () => {
+                setErr('You have been disconnected...')
+            }
 
         } catch (error) {
             console.error(error);
         }
+        setSocket(ws);
+
+
+        return () => {
+            ws.close();
+        }
+    }, []);
+
+    // send new messages function
+    const sendNewMessages = async () => {
+        const uri = image !== null ? await FileSystem.readAsStringAsync(image, { encoding: FileSystem.EncodingType.Base64 }) : null
+        socket.send(JSON.stringify({ 'text': text, 'image': uri }));
+        setText('');
+        setImage(null);
     };
 
     useEffect(() => {
         const showKeyboard = Keyboard.addListener('keyboardWillShow', () => {
             SetIsTyping(true);
-            setTimeout(() => {
-                messageListRef.current.scrollToEnd({ animated: true })
-            });
-
         }, 1000)
         const hideKeyboard = Keyboard.addListener('keyboardWillHide', () => { SetIsTyping(false) });
 
@@ -150,34 +129,35 @@ export default function CMessages(props) {
         <Layout>
             <View style={{ height: bodyHeight }}>
                 <View style={{ height: bodyHeight }}>
-                    <View style={{height: isLoading && bodyHeight}}>
-                    {isLoading ?
+                    <View style={{ height: isLoading && bodyHeight }}>
+                        {isLoading ?
 
-                        <View style={{height:bodyHeight}}>
-                            <ActivityIndicator/>
-                        </View> :
+                            <View style={{ height: bodyHeight }}>
+                                <ActivityIndicator />
+                            </View> :
 
-                        <View style={{ height: isTyping ? bodyHeight / 2 : bodyHeight * 0.93 }}>
-                            {
-                                // While typing reduce size of component
-                            }
-                            <View>
-                                <Text style={{ textAlign: 'center', fontWeight: '900', fontSize: baseFontSize * 5 }}>
+                            <View style={{ height: isTyping ? bodyHeight / 2 : bodyHeight * 0.93 }}>
+                                {
+                                    // While typing reduce size of component
+                                    err !== '' &&
+                                    <Text style={{ textAlign: 'center', color: 'red', fontWeight: '900', fontSize: baseFontSize * 4 }}>
+                                        {err}
+                                    </Text>
 
-                                    {messages['community_details']['community_name']}
+                                }
+                                <View>
+                                    <Text style={{ textAlign: 'center', fontWeight: '900', fontSize: baseFontSize * 5 }}>
 
-                                </Text>
-                            </View>
-                            {
-                                // make sure message usbt ab empty list
-                            }
-                            {messages['msg_list'].length < 1 ? <Text style={{ textAlign: 'center', fontSize: baseFontSize * 5, fontWeight: '500' }}>No messages available. Send the first!</Text> :
+                                        {messages['community_details']['community_name']}
 
-                                <ScrollView style={{ height: bodyHeight / 2 }} ref={messageListRef}>
-
-                                    {
-                                        messages['msg_list'].map((item) =>
-                                            <View key={item['id']}>
+                                    </Text>
+                                </View>
+                                {
+                                    // make sure message usbt ab empty list
+                                }
+                                {messageList.length < 1 ? <Text style={{ textAlign: 'center', fontSize: baseFontSize * 5, fontWeight: '500' }}>No messages available. Send the first!</Text> :
+                                    <FlatList inverted={true} data={messageList} renderItem={({item}) =>
+                                        <View key={item['id']}>
                                             <>
                                                 <View style={{ flexDirection: item['same'] ? 'row-reverse' : 'row', width: bodyWidth * 0.7, alignSelf: item['same'] ? 'flex-end' : 'flex-start' }}>
 
@@ -206,21 +186,18 @@ export default function CMessages(props) {
                                                 </View>
 
                                             </>
-                                            </View>
-                                        )
-                                    }
+                                        </View>
 
-                                </ScrollView>
+                                    } />
+                                }
 
-                            }
-
-                        </View>
-                    }
+                            </View>
+                        }
                     </View>
                     {
                         // Text input field
                     }
-                    <View style={ isLoading ? {display:'none'} :  styles.textInput}>
+                    <View style={isLoading ? { display: 'none' } : styles.textInput}>
                         <View style={{ flexDirection: 'row' }}>
                             <TouchableOpacity style={{ width: bodyWidth * 0.1 }}
                                 onPress={() => {
@@ -232,7 +209,7 @@ export default function CMessages(props) {
                                 }
                             </TouchableOpacity>
                             <View style={{ width: bodyWidth * 0.8 }}>
-                                <TextInput style={{ borderWidth: 1, height: bodyHeight * 0.05, fontWeight: '900' }} value={text} onChangeText={setText} multiline={true} />
+                                <TextInput autoFocus={true} style={{ borderWidth: 1, height: bodyHeight * 0.05, fontWeight: '900' }} value={text} onChangeText={setText} multiline={true} />
                             </View>
                             {
                                 // send button

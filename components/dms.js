@@ -11,10 +11,9 @@ const { width, height } = Dimensions.get('window');
 
 export default function Dms(props) {
     const navigation = useNavigation();
-    const [chatList, setChatList] = useState(null)
     const [isLoading, setLoading] = useState(true);
     // store id of read chats
-    const { unRead, setUnRead } = useContext(GeneralContext);
+    const { unRead, chatList, setChatList } = useContext(GeneralContext);
 
     // start point of swipe on chat objects
     const [start, setStart] = useState([0, 0]);
@@ -70,7 +69,7 @@ export default function Dms(props) {
         try {
             const response = await fetch('http://192.168.0.4:8000/chat/')
             const result = await response.json()
-            setChatList(result);
+            setChatList(result['chats']);
 
             setLoading(false);
             setCsrf(result['csrf'])
@@ -129,7 +128,7 @@ useFocusEffect(
                     <MSHead active='DMS' />
                     <View>
                         {isLoading ? <ActivityIndicator /> :
-                            <FlatList data={chatList['chats']} renderItem={({ item }) =>
+                            <FlatList data={chatList} renderItem={({ item }) =>
                                 <View
 
                                     style={{ marginLeft: chatId === item['chat']['id'] ? -swipeValue : 0 }}
