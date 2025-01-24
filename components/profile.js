@@ -89,7 +89,7 @@ export default function Profile() {
             navigation.navigate('Posts')
         }
         catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
 
@@ -178,7 +178,7 @@ export default function Profile() {
             }
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
     // while display name is being edited, this snippet makes sure user can't have more than 30 chars in their display name.

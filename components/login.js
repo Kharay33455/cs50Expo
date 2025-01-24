@@ -1,5 +1,5 @@
 // system imports
-import { Dimensions, StyleSheet, TextInput, Text, View, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, TextInput, Text, View, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 
 // manag state and rerender on state update
 import { useContext, useEffect, useState } from 'react';

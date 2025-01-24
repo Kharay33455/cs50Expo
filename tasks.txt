@@ -21,4 +21,5 @@
 . search functionality(done)
 . Post extension ui(done)
 . close message socket on exit(done)
-. open if trying to send message but chat socket is close
+. open if trying to send message but chat socket is close(done)
+. sort post by user distance from poster

@@ -63,7 +63,7 @@ export default function Posts() {
                     isLoading ? <ActivityIndicator /> :
                         <>
                             <FlatList data={data['posts']} renderItem={({ item }) =>
-                                <Post userId={data['user_data']['id']} opId={item['op_id']} communityIsPrivate={item['community_is_private']} communityName={item['community_name']} communityId={item['community']} isShared={item['is_shared']} id={item['post_id']} oppfp={item['oppfp']} post={item['post']} display={item['display']} op={item['op']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} comments={item['comments']} shares={item['shares']} allege={item['allege']} />
+                                <Post distance = {item['distance']} userId={data['user_data']['id']} opId={item['op_id']} communityIsPrivate={item['community_is_private']} communityName={item['community_name']} communityId={item['community']} isShared={item['is_shared']} id={item['post_id']} oppfp={item['oppfp']} post={item['post']} display={item['display']} op={item['op']} media1={item['media1']} likes={item['likes']} frowns={item['frowns']} ghost_likes={item['ghost_likes']} comments={item['comments']} shares={item['shares']} allege={item['allege']} />
                             } />
                         </>
                 }

@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native"
 // to navigate to and fro DMS and CMS
 export default function MSHead(props) {
 const navigation = useNavigation();
-const active = props.active
         return (
             <View style={styles.head}>
 

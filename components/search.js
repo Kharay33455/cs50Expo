@@ -1,25 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, TextInput, View, SafeAreaView, ScrollView, Text, TouchableOpacity } from 'react-native';
-import Footer from './footer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Dimensions, StyleSheet, TextInput, View, ScrollView, Text, TouchableOpacity } from 'react-native'
 import { useContext, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { useNavigation } from '@react-navigation/native';
-import Sresults from './sresults';
-import Top from './top';
-import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import Layout, { bodyHeight, baseFontSize } from './layout';
 import { GeneralContext } from './globalContext';
 import SCommunity from './community/singleCommunity';
 
 
 const { width, height } = Dimensions.get('window');
 
-const Stack = createNativeStackNavigator();
 
 
 export default function Search(props) {
 
-    const navigation = useNavigation();
     const { socket } = useContext(GeneralContext);
 
 
@@ -36,11 +28,10 @@ export default function Search(props) {
 
         return (
             <View style={styles.post}>
-                <TextInput style={styles.input} onChangeText={(text)=>{
+                <TextInput style={styles.input} onChangeText={(text) => {
                     setSearch(text)
                 }} value={search} placeholder='Search' />
                 <TouchableOpacity onPress={() => {
-                    console.log(search);
                     socket.send(JSON.stringify({ 'message': 'search', 'value': search }));
                 }}>
                     <Icon name='search' size={width / 15} style={{ paddingLeft: (width * 0.16) / 4 }} />
@@ -60,8 +51,12 @@ export default function Search(props) {
         return (
             <ScrollView>
                 {
-                    sResult.length === 0 ? <Text style={{textAlign:'center', fontSize: baseFontSize *7}}>No matching result</Text> :
-                    sResult.map((item) => <SCommunity isPrivate={item['is_private']} id={item['comm_id']} creator={item['creator']} name={item['name']} communityPfp={item['pfp']} /> )
+                    sResult.length === 0 ? <Text style={{ textAlign: 'center', fontSize: baseFontSize * 7 }}>No matching result</Text> :
+                        sResult.map((item) =>
+                            <View key={item['comm_id']}>
+                                <SCommunity isPrivate={item['is_private']} id={item['comm_id']} creator={item['creator']} name={item['name']} communityPfp={item['pfp']} />
+                            </View>
+                        )
                 }
             </ScrollView>
         )

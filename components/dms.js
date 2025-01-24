@@ -1,6 +1,6 @@
 import { Dimensions, StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import Chat from './chat';
 import Layout, { bodyHeight } from './layout';
 import MSHead from './messaging/messaging';

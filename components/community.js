@@ -1,5 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
 import { useEffect, useState } from 'react';
 // This renders a single community object in the list of commmunities
 import SCommunity from './community/singleCommunity';
@@ -72,11 +71,22 @@ export default function Explore() {
                 {isLoading ?
                     <Searching />
                     :
-                    <>
+
+                    
+                        <>
+                        {
+                            data['communities'].length < 1? 
+                            <View style={{display:"flex", justifyContent:"center", alignItems:"center", height:bodyHeight *0.8, padding:bodyWidth/20}}>
+                            <Text style={{fontWeight:'900'}}>NO COMMUNITIES NEAR YOU, CONSIDER INCREASING RANGE.</Text>
+                            </View>
+                            :
+
                         <FlatList data={data['communities']} renderItem={({ item }) =>
                             <SCommunity requested={item['requested']} isPrivate={item['is_private']} isMember={false} id={item['community']} creator={item['creator']} name={item['name']} memberCount={item['member_count']} />
 
                         } style={{height : bodyHeight * 0.8 }}/>
+
+}
                         <TouchableOpacity onPress={() => {
                             getMyCommunities(location.longitude, location.latitude, data['dist']);
                         }} style={{height : bodyHeight *0.2}}>
@@ -85,7 +95,8 @@ export default function Explore() {
                             </View>
                         </TouchableOpacity>
                     </>
-                }
+                    }
+                
             </View>
         </Layout>
     );

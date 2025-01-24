@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Dimensions } from "react-native"
+import { Text, View, StyleSheet } from "react-native"
 import Fpfp from "./fpfp"
 
 import { bodyWidth, baseFontSize, bodyHeight } from "./layout"

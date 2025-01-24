@@ -1,9 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 
-const { width, height } = Dimensions.get('window')
 const iconSize = 20;
 
 export default function Interact(props) {
@@ -34,7 +33,7 @@ export default function Interact(props) {
                 setIsShared(result['is_shared'])
             }
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
 

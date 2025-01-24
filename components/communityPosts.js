@@ -1,8 +1,6 @@
-import { TextInput, Text, ActivityIndicator, Image, FlatList, View, StyleSheet, Dimensions, SafeAreaView, StatusBar, TouchableOpacity, ScrollView, Keyboard } from "react-native";
+import { TextInput, Text, ActivityIndicator, Image, FlatList, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Keyboard } from "react-native";
 import { useState, useEffect } from "react";
 import Post from "./post";
-import Footer from "./footer";
-import Top from "./top";
 import Icon from "react-native-vector-icons/Entypo";
 import IIcons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'

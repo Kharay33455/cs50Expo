@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useState, useCallback } from 'react';
 import SCommunity from './community/singleCommunity';

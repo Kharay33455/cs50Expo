@@ -6,7 +6,7 @@ import { TouchableWithoutFeedback, Image, Dimensions, StyleSheet, TextInput, Vie
 import Footer from './footer';
 import Message from './message';
 // hooks
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 // icons
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import image picker
@@ -47,7 +47,7 @@ export default function Messages(props) {
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images', 'videos'],
+            mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
@@ -103,8 +103,6 @@ export default function Messages(props) {
             ws.onmessage = function (e) {
                 const data = JSON.parse(e.data);
                 setMessages((prevMessages) => [data['message'], ...prevMessages,]);
-                setText('');
-                setImage(null);
             };
 
             // close or shut down by error
@@ -134,7 +132,6 @@ export default function Messages(props) {
 
     // send new message. uri is image uri if any. It is stored in a dynamic variable image
     const sendMessage = async (uri) => {
-
         // if image, encode to base64 format as pictures cannot be sent over ws like in http
         if (uri) {
             const base64Image = await FileSystem.readAsStringAsync(uri, {
@@ -147,6 +144,7 @@ export default function Messages(props) {
                 'image': base64Image
             }
             socketObj.send(JSON.stringify({ 'form': form }));
+
         }
         else {
 
@@ -157,7 +155,8 @@ export default function Messages(props) {
             }
             socketObj.send(JSON.stringify({ 'form': form }));
         }
-
+        setText('');
+        setImage(null);
     };
 
     // this screen uses it's own layout.

@@ -1,5 +1,5 @@
 // Import neccessary modules
-import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image, Dimensions} from "react-native";
 // Import custom component Pfp
 import Pfp from './pfp'
 import { useNavigation } from "@react-navigation/native";

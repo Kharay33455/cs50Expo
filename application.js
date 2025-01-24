@@ -1,8 +1,7 @@
-import { NavigationContainer, useNavigation } from '@react-navigation/native'
+import { NavigationContainer} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Posts from './components/posts';
 import Search from './components/search';
-import Sresults from './components/sresults';
 import Explore from './components/community';
 import MyCommunity from './components/my-community';
 import Alert from './components/alert';
@@ -18,7 +17,7 @@ import Register from './components/register';
 import FProfile from './components/FProfile';
 import NewCommunity from './components/newCommunity';
 import CMessages from './components/communityMessages';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { GeneralContext } from './components/globalContext';
 
 const Stack = createNativeStackNavigator();
@@ -27,7 +26,7 @@ const Stack = createNativeStackNavigator();
 export default function Application() {
 
 
-    const { setChatList, setIsRead, setSocket } = useContext(GeneralContext);
+    const { setChatList, setIsRead } = useContext(GeneralContext);
 
     // set up chat socket to disconnect only on app close
 
@@ -67,7 +66,6 @@ export default function Application() {
             <Stack.Navigator initialRouteName='Posts'>
                 <Stack.Screen name='Posts' component={Posts} options={{ headerShown: false }} />
                 <Stack.Screen name='Search' component={Search} options={{ headerShown: false }} />
-                <Stack.Screen name='Sresults' component={Sresults} options={{ headerShown: false }} />
                 <Stack.Screen name='Explore' component={Explore} options={{ headerShown: false }} />
                 <Stack.Screen name='MyCommunity' component={MyCommunity} options={{ headerShown: false }} />
                 <Stack.Screen name='Alert' component={Alert} options={{ headerShown: false }} />

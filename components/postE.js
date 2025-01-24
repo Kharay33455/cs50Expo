@@ -1,11 +1,9 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Image, TextInput, Text, View, SafeAreaView, ActivityIndicator, ScrollView, TouchableOpacity, TouchableWithoutFeedback, KeyboardAvoidingView, FlatList, Platform, Keyboard } from 'react-native';
-import Footer from './footer';
-import Top from './top';
+import { Dimensions, StyleSheet, Image, TextInput, Text, View, ActivityIndicator, ScrollView, TouchableOpacity, TouchableWithoutFeedback, KeyboardAvoidingView, FlatList, Platform, Keyboard } from 'react-native';
+
 import { useEffect, useState } from 'react';
 import Post from './post';
 import Comment from './comment';
-import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import Layout, { bodyHeight, bodyWidth} from './layout';
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,10 +39,9 @@ export default function PostE(props) {
             const result = await response.json();
             setIsLoading(false)
             setData(result)
-            console.log(result)
         }
         catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
 

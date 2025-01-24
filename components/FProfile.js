@@ -1,4 +1,4 @@
-import { ScrollView, Dimensions, StyleSheet, View, Image, ActivityIndicator, Text, TouchableOpacity, FlatList } from 'react-native';
+import { ScrollView, Dimensions, StyleSheet, View, Image, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import Footer from './footer';
 import { useNavigation } from '@react-navigation/native';
 import Post from './post';
@@ -31,11 +31,11 @@ export default function FProfile(props) {
     const [displayName, setDisplayName] = useState('');
 
 
-    const get_details = async (userID) => {
+    const get_details = async () => {
 
         try {
             // Get all details from back end for selected user by their ID.
-            const response = await fetch('http://192.168.0.4:8000/api-person/person?userId=' + userID);
+            const response = await fetch('http://192.168.0.4:8000/api-person/person?userId=' + userId);
             if (response.status === 301) {
                 navigation.navigate('Login', { err: 'Sign in to continue', from: 'Profile' });
                 return;
@@ -62,7 +62,7 @@ export default function FProfile(props) {
     }
 
     useEffect(() => {
-        get_details(userId);
+        get_details();
     }, []);
 
     const chat = async () => {
@@ -249,6 +249,6 @@ const styles = StyleSheet.create({
         opacity: 0.5
     },
     pfp: {
-        width: width / 4, height: height / 7, borderRadius: width / 5
+        width: width / 4, height: width/4, borderRadius: width / 4
     }
 });

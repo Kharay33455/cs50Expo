@@ -1,12 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, TextInput, View, SafeAreaView, TouchableOpacity, Text, Image, ScrollView, FlatList, Keyboard } from 'react-native';
-import Footer from './footer';
+import { Dimensions, StyleSheet, TextInput, View, TouchableOpacity, Text, Image, ScrollView } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
-import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import Layout, { bodyHeight, bodyWidth } from './layout';
 
 
 
@@ -42,7 +40,7 @@ export default function NewPost() {
                 navigation.navigate('Login', { err: result['err'], from: 'New Post' })
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -57,7 +55,7 @@ export default function NewPost() {
 
     const pickImage = async (which) => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images', 'videos'],
+            mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
@@ -145,14 +143,13 @@ export default function NewPost() {
             }
             if (response.status == 200) {
                 // redirect to post
-                console.log(result['post_id'])
                 navigation.navigate('PostE', { id: result['post_id'], communityName: commName });
             }
 
         }
         // catch unplanned errors
         catch (error) {
-            console.log(error)
+            console.error(error)
         };
     };
     return (

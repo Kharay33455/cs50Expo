@@ -4,10 +4,7 @@ Stylesheet...
 TouchableOpacity for looks and feel
 */
 import { useNavigation } from "@react-navigation/native"
-import { Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native"
-
-// Get width and height and store it in width and height variable
-const { width, height } = Dimensions.get('window')
+import { Image, StyleSheet, TouchableOpacity } from "react-native"
 
 // Export default function to be used out of this file. SHow dp if available or show blank if not
 export default function Fpfp(props) {

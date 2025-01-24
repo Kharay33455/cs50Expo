@@ -3,7 +3,7 @@
 // Import neccesary modules
 import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
 import Interact from "./postIntereact";
-import Icon  from "react-native-vector-icons/FontAwesome6";
+import Icon from "react-native-vector-icons/FontAwesome6";
 
 // Import pfp to show poster's profile photo
 import Fpfp from "./fpfp";
@@ -19,20 +19,20 @@ export default function Post(props) {
 
     return (
         <>
-            <TouchableOpacity onPress={() => { navigation.navigate('PostE', { id: props.id, comments: props.comments, communityName:props.communityName, communityId : props.communityId, communityIsPrivate : props.communityIsPrivate }) }}>
+            <TouchableOpacity onPress={() => { navigation.navigate('PostE', { id: props.id, comments: props.comments, communityName: props.communityName, communityId: props.communityId, communityIsPrivate: props.communityIsPrivate }) }} style={{ backgroundColor: "rgba(250,250,250,0.5)" }}>
                 <View style={styles.communityContainer}>
-                    <Icon name='people-group' iconSize = {width/100} color={'orange'}/>
+                    <Icon name='people-group' iconSize={width / 100} color={'orange'} />
                     <Text style={styles.communityText}>
                         {props.communityName}
                     </Text>
-                    {props.communityIsPrivate && <Icon name="lock" iconSize={width/100} color={'black'}  style={{paddingLeft:width/50}}/>}
+                    {props.communityIsPrivate && <Icon name="lock" iconSize={width / 100} color={'black'} style={{ paddingLeft: width / 50 }} />}
                 </View>
                 <View style={styles.post}>
-                    <Fpfp uri={oppfp} id = {props.opId} userId = {props.userId}/>
+                    <Fpfp uri={oppfp} id={props.opId} userId={props.userId} />
                     <View style={styles.pad}>
                         <View>
-                            <Text>
-                                {props.display}
+                            <Text style={{ fontWeight: "900", color: "gray" }}>
+                                {props.display} <Text style={{ color: "orange", fontWeight: '900' }}>{props.distance}</Text>
                             </Text>
                         </View>
 
@@ -43,7 +43,7 @@ export default function Post(props) {
                         </View>
 
                         <View style={styles.pad}>
-                            <Text style={{ width: width / 1.3, fontSize: width / 25 }}>
+                            <Text style={{ width: width / 1.3, fontSize: width / 25, fontWeight: "600" }}>
                                 {props.post}
                             </Text>
                         </View>
@@ -52,7 +52,7 @@ export default function Post(props) {
                             urli && <Image source={{ uri: urli }} style={{ width: width - 100, height: height / 3 }} />
                         }
                         <View style={{ marginTop: height / 100 }}>
-                            <Interact interact = {props.interact == true ? true : false} isShared={props.isShared} allege={props.allege} postID={props.id} likes={props.likes} frowns={props.frowns} ghost_likes={props.ghost_likes} comments={props.comments} shares={props.shares} />
+                            <Interact interact={props.interact == true ? true : false} isShared={props.isShared} allege={props.allege} postID={props.id} likes={props.likes} frowns={props.frowns} ghost_likes={props.ghost_likes} comments={props.comments} shares={props.shares} />
                         </View>
                     </View>
 
@@ -71,19 +71,20 @@ const styles = StyleSheet.create({
     },
     pad: {
         paddingLeft: width / 50,
-        paddingBottom: width / 50
+        paddingBottom: width / 50,
+        paddingTop: height / 100
     },
     line: {
         borderBottomWidth: 0.5,
         marginBottom: height / 50,
     },
-    communityContainer:{
-        padding : width/30,
-        paddingLeft:width/10,
-        flexDirection:"row"
+    communityContainer: {
+        padding: width / 30,
+        paddingLeft: width / 10,
+        flexDirection: "row"
     },
-    communityText:{
+    communityText: {
         color: '#ff8c00',
-        marginLeft:width/50
+        marginLeft: width / 50
     }
 })

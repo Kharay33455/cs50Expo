@@ -1,4 +1,4 @@
-import { View, Text, Dimensions, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import IconA from "react-native-vector-icons/AntDesign";
 
@@ -8,7 +8,6 @@ import { useNavigation } from "@react-navigation/native";
 const { width, height } = Dimensions.get('screen');
 export default function Notification(props) {
     const navigation = useNavigation();
-    console.log(props.isSeen);
     return (
         <TouchableOpacity onPress={() => {
             navigation.navigate("PostE", { id: props.postId })

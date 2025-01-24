@@ -21,12 +21,10 @@ export default function SCommunity(props) {
             setStatus(202);
         }
     }, [])
-    console.log(props.requested)
 
     const joinCommunity = async () => {
         try {
             const response = await fetch('http://192.168.0.4:8000/api-person/join-community?communityId=' + props.id)
-            console.log(response.status)
             if (response.status === 403){
                 setStatus(403);
             }
@@ -37,7 +35,7 @@ export default function SCommunity(props) {
             }
             
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 

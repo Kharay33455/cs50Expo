@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 // import Layout component
-import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout'
+import Layout, { bodyHeight, bodyWidth } from './layout'
 
 
 export default function Register() {

@@ -1,12 +1,9 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
-import Footer from './footer';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import Top from './top';
 import { useEffect, useState } from 'react';
 import Notification from './notification';
-import Layout, { bodyHeight, bodyWidth, baseFontSize } from './layout';
+import Layout, { bodyHeight } from './layout';
 
 const { width, height } = Dimensions.get('window');
 

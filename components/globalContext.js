@@ -37,7 +37,6 @@ export const GeneralContextProvider = ({ children }) => {
 
             // web socket open
             globalWS.onopen = () => {
-                console.log("Web socket open");
                 // set socket
                 setSocket(globalWS);
             }
@@ -61,7 +60,6 @@ export const GeneralContextProvider = ({ children }) => {
             // web closing
             globalWS.onclose = () => {
                 // when socket closes, set socket to null. This tells app to restart socket on load
-                console.log("Websocket closing...");
                 setSocket(null);
             }
 
